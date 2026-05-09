@@ -60,7 +60,8 @@ window.loadFromFirebase = async function() {
         const ls = localStorage.getItem('dannys_garage_v1');
         if(ls) {
           const parsed = JSON.parse(ls);
-          DB = { ...DB, ...parsed };
+          Object.assign(window.DB, parsed);
+          DB = window.DB;
           await window.saveToFirebase();
         } else {
           seedData();
@@ -78,7 +79,7 @@ window.loadFromFirebase = async function() {
     hideSyncIndicator();
     try {
       const s = localStorage.getItem('dannys_garage_v1');
-      if(s) { const parsed = JSON.parse(s); DB = {...DB, ...parsed}; }
+      if(s) { const parsed = JSON.parse(s); Object.assign(window.DB, parsed); DB = window.DB; }
     } catch(le) {}
     seedData();
     renderHome();
@@ -97,7 +98,7 @@ window.addEventListener('DOMContentLoaded', () => {
   window.loadFromFirebase();
 });
 
-let DB = {
+window.DB = window.DB || {
   vehicles: [],
   reminders: [],
   taxes: [],
@@ -105,6 +106,7 @@ let DB = {
   hof: [],
   profile: {}
 };
+let DB = window.DB;
 
 function showSyncIndicator(msg){
   const el=document.getElementById('sync-indicator');
@@ -132,14 +134,13 @@ function seedData(){
 
 // Fungsi untuk mengosongkan semua data
 window.clearAllData = async function() {
-  DB = {
-    vehicles: [],
-    reminders: [],
-    taxes: [],
-    services: [],
-    hof: [],
-    profile: {}
-  };
+  window.DB.vehicles = [];
+  window.DB.reminders = [];
+  window.DB.taxes = [];
+  window.DB.services = [];
+  window.DB.hof = [];
+  window.DB.profile = {};
+  DB = window.DB;
   // Hapus dari localStorage
   try { localStorage.removeItem('dannys_garage_v1'); } catch(e) {}
   // Hapus dari Firebase
