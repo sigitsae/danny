@@ -826,7 +826,7 @@ function renderHome(){
   if(DB.vehicles.length===0){
     vpEl.innerHTML='<div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-text">Belum ada kendaraan.</div></div>';
   } else {
-    vpEl.innerHTML=DB.vehicles.slice(0,2).map(v=>buildVehicleCard(v)).join('');
+    vpEl.innerHTML=DB.vehicles.slice().reverse().slice(0,2).map(v=>buildVehicleCard(v)).join('');
   }
 
   const badge=document.getElementById('nav-badge');
@@ -895,6 +895,7 @@ function renderKoleksi(){
   const list=document.getElementById('koleksi-list');
   let vv=DB.vehicles;
   if(vehicleFilter!=='semua') vv=vv.filter(v=>v.type===vehicleFilter);
+  vv=vv.reverse();
   if(vv.length===0){
     list.innerHTML='<div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-text">Belum ada kendaraan.</div></div>';return;
   }
