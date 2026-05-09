@@ -147,3 +147,35 @@ function hideSyncIndicator() {
   const el = document.getElementById('sync-indicator');
   if (el) el.classList.remove('show');
 }
+
+// =====================================================================
+// PWA INSTALL PROMPT
+// =====================================================================
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'flex';
+  console.log('[PWA] Install prompt tersedia');
+});
+
+window.installApp = async function() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    console.log('[PWA] User menerima install');
+  } else {
+    console.log('[PWA] User menolak install');
+  }
+  deferredPrompt = null;
+};
+
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App berhasil diinstall');
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
