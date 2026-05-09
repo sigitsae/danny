@@ -12,9 +12,9 @@ const DYNAMIC_CACHE = 'dannys-garage-dynamic-v1';
 const PRECACHE_ASSETS = [
   './index.html',
   './manifest.json',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png',
-  './icons/apple-touch-icon.png',
+  './icon-192x192.png',
+  './icon-512x512.png',
+  './apple-touch-icon.png',
   // Google Fonts — cache on first use via dynamic cache
 ];
 
@@ -195,8 +195,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Danny\'s Garage Hub';
   const options = {
     body: data.body || 'Ada dokumen yang perlu perhatian!',
-    icon: './icons/icon-192x192.png',
-    badge: './icons/icon-96x96.png',
+    icon: './icon-192x192.png',
+    badge: './icon-192x192.png',
     vibrate: [100, 50, 100],
     data: { url: data.url || './' },
     actions: [

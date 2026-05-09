@@ -360,7 +360,11 @@ function renderHome(){
 function buildVehicleCard(v){
   const vReminders=DB.reminders.filter(r=>r.vehicleId===v.id);
   const alertPills=vReminders.map(r=>{const d=getDaysUntil(r.expiry);const s=getStatusPill(d);return`<span class="doc-alert-pill ${s.cls}">${docTypeIcon(r.doctype)} ${r.doctype} ${d<0?'HABIS':d+'H'}</span>`;}).join('');
-  const imgContent=v.photo?`<img class="vc-img" src="${v.photo}" alt="${v.name}" onerror="this.parentElement.innerHTML='<div class=\'vc-img-placeholder\'>${v.type==='Mobil'?'🚗':'🏍️'}</div>'">`:`<div class="vc-img-placeholder">${v.type==='Mobil'?'🚗':'🏍️'}</div>`;
+  const ph = v.type==='Mobil' ? '🚗' : '🏍️';
+  const imgContent = v.photo
+    ? `<img class="vc-img" src="${v.photo}" alt="${v.name}" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'">
+       <div class="vc-img-placeholder" style="display:none">${ph}</div>`
+    : `<div class="vc-img-placeholder">${ph}</div>`;
   return `<div class="vehicle-card ${v.fav?'featured':''}" onclick="openVehicleDetail('${v.id}')"><div class="vc-img-wrap">${imgContent}<div class="vc-badge ${v.type==='Mobil'?'vc-badge-car':'vc-badge-moto'}">${v.type}</div>${v.fav?'<div class="vc-fav">⭐</div>':''}</div><div class="vc-body"><div class="vc-name">${v.name}</div><div class="vc-plate">${v.plate}</div><div class="vc-stats"><span class="vc-stat-pill pill-silver">${v.year}</span><span class="vc-stat-pill pill-silver">${v.color}</span><span class="vc-stat-pill ${v.status==='Aktif'?'pill-ok':v.status==='Dijual'?'pill-warn':'pill-blue'}">${v.status}</span></div>${vReminders.length>0?`<div class="vc-alert-row">${alertPills}</div>`:''}<div class="action-btn-row"><button class="ab ab-edit" onclick="event.stopPropagation();openEditVehicle('${v.id}')">✏️</button><button class="ab ab-del" onclick="event.stopPropagation();deleteVehicle('${v.id}')">🗑️</button></div></div></div>`;
 }
 let vehicleFilter='semua';
@@ -605,7 +609,7 @@ function renderHof(){
   const el=document.getElementById('hof-content');
   const sorted=[...DB.hof].sort((a,b)=>Number(a.rank)-Number(b.rank));
   if(sorted.length===0){el.innerHTML=`<div style="text-align:center;padding:40px 20px;"><div style="font-size:50px;margin-bottom:12px;">🏆</div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:.05em;margin-bottom:8px;">Hall of Fame Kosong</div><div style="font-size:12px;color:var(--text3);line-height:1.6;">Danny belum memilih kendaraan terbaik.</div></div>`;return;}
-  el.innerHTML=sorted.map(h=>{const v=getVehicle(h.vehicleId);if(!v)return '';const rankEmoji=['🥇','🥈','🥉','4️⃣','5️⃣'][h.rank-1]||h.rank;const tags=h.tags?h.tags.split(',').filter(Boolean):[];const imgContent=v.photo?`<img class="hof-img" src="${v.photo}" alt="${v.name}" onerror="this.parentElement.innerHTML='<div class=\'hof-img-placeholder\'>🏎️</div>'">`:`<div class="hof-img-placeholder">🏎️</div>`;return`<div class="hof-card"><div class="hof-number">${h.rank}</div><div class="hof-img-wrap">${imgContent}</div><div class="hof-overlay"><div class="hof-rank-label">${rankEmoji} Rank #${h.rank} · Danny's Pick</div><div class="hof-vh-name">${v.name}</div><div class="hof-vh-desc">"${h.reason||''}"</div>${tags.length>0?`<div class="hof-tags">${tags.map(t=>`<span class="hof-tag pill-warn">${t}</span>`).join('')}</div>`:''}</div><div style="position:absolute;top:10px;right:10px;display:flex;gap:4px;"><button class="ab ab-edit" onclick="openEditHof('${h.id}')">✏️</button><button class="ab ab-del" onclick="deleteHof('${h.id}')">🗑️</button></div></div>`;}).join('');
+  el.innerHTML=sorted.map(h=>{const v=getVehicle(h.vehicleId);if(!v)return '';const rankEmoji=['🥇','🥈','🥉','4️⃣','5️⃣'][h.rank-1]||h.rank;const tags=h.tags?h.tags.split(',').filter(Boolean):[];const imgContent=v.photo?`<img class="hof-img" src="${v.photo}" alt="${v.name}" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="hof-img-placeholder" style="display:none">🏎️</div>`:`<div class="hof-img-placeholder">🏎️</div>`;return`<div class="hof-card"><div class="hof-number">${h.rank}</div><div class="hof-img-wrap">${imgContent}</div><div class="hof-overlay"><div class="hof-rank-label">${rankEmoji} Rank #${h.rank} · Danny's Pick</div><div class="hof-vh-name">${v.name}</div><div class="hof-vh-desc">"${h.reason||''}"</div>${tags.length>0?`<div class="hof-tags">${tags.map(t=>`<span class="hof-tag pill-warn">${t}</span>`).join('')}</div>`:''}</div><div style="position:absolute;top:10px;right:10px;display:flex;gap:4px;"><button class="ab ab-edit" onclick="openEditHof('${h.id}')">✏️</button><button class="ab ab-del" onclick="deleteHof('${h.id}')">🗑️</button></div></div>`;}).join('');
 }
 function openAddHof(){
   document.getElementById('hoff-title').textContent='Tambah HOF';
@@ -691,3 +695,14 @@ function populateVehicleSelect(selectId,selectedId){
   sel.innerHTML=DB.vehicles.length===0?'<option value="">-- Tambah kendaraan dulu --</option>':DB.vehicles.map(v=>`<option value="${v.id}" ${v.id===selectedId?'selected':''}>${v.type==='Mobil'?'🚗':'🏍️'} ${v.name} · ${v.plate}</option>`).join('');
 }
 renderHome();
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(registration => {
+      console.log('Service Worker registered successfully:', registration);
+    })
+    .catch(error => {
+      console.log('Service Worker registration failed:', error);
+    });
+}
