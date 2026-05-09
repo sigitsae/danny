@@ -18,8 +18,6 @@
 <meta property="og:site_name" content="Danny's Garage Hub">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/sigitsae/danny/main/danny%20garage.png">
-
-<!-- App Scripts -->
 <script type="module" src="app.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -32,7 +30,6 @@
   <div class="loading-spinner"></div>
   <div class="loading-status" id="loading-status">Menghubungkan ke cloud...</div>
 </div>
-<!-- SYNC INDICATOR -->
 <div class="sync-indicator" id="sync-indicator"></div>
 
 <div id="app">
@@ -121,7 +118,6 @@
       <div class="page-header">
         <div class="header-top">
           <div><div class="page-title">Pajak</div><div class="page-subtitle">Biaya tahunan kendaraan</div></div>
-          <button class="btn-add-sm" onclick="openAddTax()">+ Tambah</button>
         </div>
       </div>
       <div style="padding:16px;">
@@ -132,6 +128,14 @@
           <div class="fin-row">
             <div class="fin-mini"><span class="fin-mini-num" id="pajak-vehicle-count">0</span><div class="fin-mini-lbl">Kendaraan</div></div>
             <div class="fin-mini"><span class="fin-mini-num" id="pajak-paid-count">0</span><div class="fin-mini-lbl">Sudah Bayar</div></div>
+          </div>
+        </div>
+        <!-- Info banner: pajak dikelola dari koleksi -->
+        <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;">
+          <span style="font-size:18px;">💡</span>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;">Data pajak dikelola dari Koleksi</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5;">Untuk menambah atau mengubah data pajak, buka menu <strong style="color:var(--text2);">Koleksi → Edit Kendaraan</strong>. Data akan otomatis sinkron ke halaman ini.</div>
           </div>
         </div>
         <div id="pajak-content"></div>
@@ -207,47 +211,103 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- VEHICLE FORM MODAL -->
+  <!-- ================================================================
+       VEHICLE FORM MODAL — Termasuk data pajak lengkap
+       ================================================================ -->
   <div class="modal-overlay" id="vehicle-form-modal" onclick="closeOverlay(event,'vehicle-form-modal')">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
-      <div class="sheet-header"><div class="sheet-title" id="vf-title">Tambah Kendaraan</div><div class="sheet-sub">Data kendaraan Danny</div></div>
+      <div class="sheet-header">
+        <div class="sheet-title" id="vf-title">Tambah Kendaraan</div>
+        <div class="sheet-sub">Data kendaraan Danny</div>
+      </div>
       <div style="padding:18px 20px;">
         <input type="hidden" id="vf-id">
-        <div class="form-group"><label class="form-label">Nama / Model</label><input class="form-input" id="vf-name" placeholder="cth. Ferrari 458 Italia"></div>
+
+        <!-- INFO KENDARAAN -->
+        <div class="form-group"><label class="form-label">Nama / Model</label>
+          <input class="form-input" id="vf-name" placeholder="cth. Ferrari 458 Italia">
+        </div>
         <div class="form-group"><label class="form-label">Jenis</label>
           <div class="cat-select">
             <div class="cat-opt active" data-val="Mobil" onclick="selOpt(this,'vf-type')">🚗 Mobil</div>
             <div class="cat-opt" data-val="Motor" onclick="selOpt(this,'vf-type')">🏍️ Motor</div>
-          </div><input type="hidden" id="vf-type" value="Mobil">
+          </div>
+          <input type="hidden" id="vf-type" value="Mobil">
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Nomor Plat</label><input class="form-input" id="vf-plate" placeholder="B 1234 ABC" style="text-transform:uppercase;"></div>
-          <div class="form-group"><label class="form-label">Tahun</label><input class="form-input" id="vf-year" type="number" placeholder="2020"></div>
+          <div class="form-group"><label class="form-label">Nomor Plat</label>
+            <input class="form-input" id="vf-plate" placeholder="B 1234 ABC" style="text-transform:uppercase;">
+          </div>
+          <div class="form-group"><label class="form-label">Tahun</label>
+            <input class="form-input" id="vf-year" type="number" placeholder="2020">
+          </div>
         </div>
-        <div class="form-group"><label class="form-label">Warna</label><input class="form-input" id="vf-color" placeholder="cth. Merah Metalik"></div>
+        <div class="form-group"><label class="form-label">Warna</label>
+          <input class="form-input" id="vf-color" placeholder="cth. Merah Metalik">
+        </div>
 
-        <!-- ===== FOTO SECTION - FIXED ===== -->
+        <!-- FOTO -->
         <div class="form-group"><label class="form-label">URL Foto (opsional)</label>
           <input class="form-input" id="vf-photo" placeholder="https://..." oninput="updateVehiclePhotoPreview(this.value)">
         </div>
         <div class="form-group"><label class="form-label">Upload Foto</label>
           <input class="form-input" type="file" id="vf-photo-file" accept="image/*" onchange="handleVehiclePhotoInput(event)">
         </div>
-        <div class="form-group" id="vf-photo-preview-wrap">
+        <div class="form-group">
           <div id="vf-photo-preview" style="display:flex;align-items:center;justify-content:center;height:120px;border-radius:12px;background:var(--bg3);color:var(--text3);font-size:12px;">Preview foto</div>
         </div>
         <div class="form-group">
           <button type="button" class="btn-outline" onclick="clearVehiclePhoto()">🗑️ Hapus Foto</button>
         </div>
 
-        <!-- ===== PAJAK SECTION ===== -->
-        <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid rgba(201,168,76,0.15);">
-          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">💰 Data Pajak Kendaraan</div>
+        <!-- ============================================================
+             DATA PAJAK — Lengkap & sinkron dengan tab Pajak
+             ============================================================ -->
+        <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid rgba(201,168,76,0.25);">
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+            💰 Data Pajak Kendaraan
+            <span style="font-size:9px;background:rgba(201,168,76,0.15);border-radius:4px;padding:2px 6px;font-weight:600;">AUTO SYNC</span>
+          </div>
+
+          <!-- Jenis Pajak -->
+          <div class="form-group"><label class="form-label">Jenis Pajak</label>
+            <div class="cat-select">
+              <div class="cat-opt active" data-val="PKB" onclick="selOpt(this,'vf-tax-type')">🚗 PKB Tahunan</div>
+              <div class="cat-opt" data-val="PKB5" onclick="selOpt(this,'vf-tax-type')">📋 PKB 5 Tahunan</div>
+              <div class="cat-opt" data-val="Asuransi" onclick="selOpt(this,'vf-tax-type')">🛡️ Asuransi</div>
+              <div class="cat-opt" data-val="Lainnya" onclick="selOpt(this,'vf-tax-type')">💸 Lainnya</div>
+            </div>
+            <input type="hidden" id="vf-tax-type" value="PKB">
+          </div>
+
+          <!-- Jumlah Pajak -->
+          <div class="form-group"><label class="form-label">Jumlah Pajak (Rp/tahun)</label>
+            <input class="form-input" id="vf-tax-amount" type="number" placeholder="0">
+          </div>
+
+          <!-- Tanggal Kadaluarsa -->
           <div class="form-group"><label class="form-label">Tanggal Kadaluarsa Pajak</label>
             <input class="form-input" id="vf-tax-expiry" type="date">
           </div>
-          <div class="form-group"><label class="form-label">Peringatan H- (hari sebelum)</label>
+
+          <!-- Tanggal Bayar -->
+          <div class="form-group"><label class="form-label">Tanggal Bayar Terakhir</label>
+            <input class="form-input" id="vf-tax-paid-date" type="date">
+          </div>
+
+          <!-- Status Pajak -->
+          <div class="form-group"><label class="form-label">Status Pajak</label>
+            <div class="cat-select">
+              <div class="cat-opt active" data-val="Lunas" onclick="selOpt(this,'vf-tax-status')">✅ Lunas</div>
+              <div class="cat-opt" data-val="Belum" onclick="selOpt(this,'vf-tax-status')">❌ Belum</div>
+              <div class="cat-opt" data-val="Segera" onclick="selOpt(this,'vf-tax-status')">⚠️ Segera</div>
+            </div>
+            <input type="hidden" id="vf-tax-status" value="Lunas">
+          </div>
+
+          <!-- Peringatan -->
+          <div class="form-group"><label class="form-label">Ingatkan H- (hari sebelum)</label>
             <select class="form-select" id="vf-tax-warn-days">
               <option value="7">7 hari sebelum</option>
               <option value="14">14 hari sebelum</option>
@@ -256,24 +316,31 @@
               <option value="90">90 hari sebelum</option>
             </select>
           </div>
+
+          <!-- Nomor Dokumen -->
           <div class="form-group" style="margin-bottom:0;"><label class="form-label">Nomor Dokumen Pajak (opsional)</label>
             <input class="form-input" id="vf-tax-number" placeholder="cth. 1234567890123456">
           </div>
         </div>
 
-        <div class="form-group"><label class="form-label">Catatan / Modifikasi</label><textarea class="form-textarea" id="vf-notes" placeholder="cth. Sudah ganti velg, knalpot custom..."></textarea></div>
-        <div class="form-group"><label class="form-label">Status</label>
+        <!-- CATATAN & STATUS KENDARAAN -->
+        <div class="form-group"><label class="form-label">Catatan / Modifikasi</label>
+          <textarea class="form-textarea" id="vf-notes" placeholder="cth. Sudah ganti velg, knalpot custom..."></textarea>
+        </div>
+        <div class="form-group"><label class="form-label">Status Kendaraan</label>
           <div class="cat-select">
             <div class="cat-opt active" data-val="Aktif" onclick="selOpt(this,'vf-status')">✅ Aktif</div>
             <div class="cat-opt" data-val="Koleksi" onclick="selOpt(this,'vf-status')">🏛️ Koleksi</div>
             <div class="cat-opt" data-val="Dijual" onclick="selOpt(this,'vf-status')">💸 Dijual</div>
-          </div><input type="hidden" id="vf-status" value="Aktif">
+          </div>
+          <input type="hidden" id="vf-status" value="Aktif">
         </div>
         <div class="form-group"><label class="form-label">Favorit Danny? ⭐</label>
           <div class="cat-select">
             <div class="cat-opt" data-val="true" onclick="selOpt(this,'vf-fav')">⭐ Favorit</div>
             <div class="cat-opt active" data-val="false" onclick="selOpt(this,'vf-fav')">—</div>
-          </div><input type="hidden" id="vf-fav" value="false">
+          </div>
+          <input type="hidden" id="vf-fav" value="false">
         </div>
       </div>
       <div class="btn-row">
@@ -300,10 +367,15 @@
             <div class="cat-opt" data-val="SIM" onclick="selOpt(this,'rf-doctype')">🪪 SIM</div>
             <div class="cat-opt" data-val="Asuransi" onclick="selOpt(this,'rf-doctype')">🛡️ Asuransi</div>
             <div class="cat-opt" data-val="Lainnya" onclick="selOpt(this,'rf-doctype')">📎 Lainnya</div>
-          </div><input type="hidden" id="rf-doctype" value="STNK">
+          </div>
+          <input type="hidden" id="rf-doctype" value="STNK">
         </div>
-        <div class="form-group"><label class="form-label">Nama / Keterangan</label><input class="form-input" id="rf-name" placeholder="cth. STNK Ferrari 458"></div>
-        <div class="form-group"><label class="form-label">Tanggal Kadaluarsa</label><input class="form-input" id="rf-expiry" type="date"></div>
+        <div class="form-group"><label class="form-label">Nama / Keterangan</label>
+          <input class="form-input" id="rf-name" placeholder="cth. STNK Ferrari 458">
+        </div>
+        <div class="form-group"><label class="form-label">Tanggal Kadaluarsa</label>
+          <input class="form-input" id="rf-expiry" type="date">
+        </div>
         <div class="form-group"><label class="form-label">Peringatan H- (hari sebelum)</label>
           <select class="form-select" id="rf-warn-days">
             <option value="7">7 hari sebelum</option>
@@ -313,52 +385,19 @@
             <option value="90">90 hari sebelum</option>
           </select>
         </div>
-        <div class="form-group"><label class="form-label">Nomor Dokumen (opsional)</label><input class="form-input" id="rf-number" placeholder="cth. 1234567890123456"></div>
-        <div class="form-group"><label class="form-label">Catatan</label><textarea class="form-textarea" id="rf-notes" placeholder="cth. Bayar di Samsat Online, perpanjang 5 tahun"></textarea></div>
-        <!-- Info badge for tax-linked reminders -->
+        <div class="form-group"><label class="form-label">Nomor Dokumen (opsional)</label>
+          <input class="form-input" id="rf-number" placeholder="cth. 1234567890123456">
+        </div>
+        <div class="form-group"><label class="form-label">Catatan</label>
+          <textarea class="form-textarea" id="rf-notes" placeholder="cth. Bayar di Samsat Online"></textarea>
+        </div>
         <div id="rf-tax-link-info" style="display:none;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--gold);font-family:'Rajdhani',sans-serif;">
-          ⚠️ Reminder ini terhubung dengan data pajak kendaraan. Perubahan di sini akan otomatis update data kendaraan.
+          ⚠️ Reminder ini terhubung dengan data pajak kendaraan.
         </div>
       </div>
       <div class="btn-row">
         <button class="btn-outline" onclick="closeModal('reminder-form-modal')">Batal</button>
         <button class="btn-gold" onclick="saveReminder()">💾 Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAX FORM MODAL -->
-  <div class="modal-overlay" id="tax-form-modal" onclick="closeOverlay(event,'tax-form-modal')">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="sheet-header"><div class="sheet-title" id="tf-title">Tambah Pajak</div><div class="sheet-sub">Biaya pajak kendaraan per tahun</div></div>
-      <div style="padding:18px 20px;">
-        <input type="hidden" id="tf-id">
-        <div class="form-group"><label class="form-label">Kendaraan</label>
-          <select class="form-select" id="tf-vehicle"></select>
-        </div>
-        <div class="form-group"><label class="form-label">Jenis Pajak</label>
-          <div class="cat-select">
-            <div class="cat-opt active" data-val="PKB" onclick="selOpt(this,'tf-type')">🚗 PKB Tahunan</div>
-            <div class="cat-opt" data-val="PKB5" onclick="selOpt(this,'tf-type')">📋 PKB 5 Tahunan</div>
-            <div class="cat-opt" data-val="Asuransi" onclick="selOpt(this,'tf-type')">🛡️ Asuransi</div>
-            <div class="cat-opt" data-val="Lainnya" onclick="selOpt(this,'tf-type')">💸 Lainnya</div>
-          </div><input type="hidden" id="tf-type" value="PKB">
-        </div>
-        <div class="form-group"><label class="form-label">Jumlah (Rp)</label><input class="form-input" id="tf-amount" type="number" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">Tanggal Bayar Terakhir</label><input class="form-input" id="tf-paid-date" type="date"></div>
-        <div class="form-group"><label class="form-label">Status</label>
-          <div class="cat-select">
-            <div class="cat-opt active" data-val="Lunas" onclick="selOpt(this,'tf-status')">✅ Lunas</div>
-            <div class="cat-opt" data-val="Belum" onclick="selOpt(this,'tf-status')">❌ Belum</div>
-            <div class="cat-opt" data-val="Segera" onclick="selOpt(this,'tf-status')">⚠️ Segera</div>
-          </div><input type="hidden" id="tf-status" value="Lunas">
-        </div>
-        <div class="form-group"><label class="form-label">Catatan</label><input class="form-input" id="tf-notes" placeholder="cth. Bayar via Tokopedia"></div>
-      </div>
-      <div class="btn-row">
-        <button class="btn-outline" onclick="closeModal('tax-form-modal')">Batal</button>
-        <button class="btn-gold" onclick="saveTax()">💾 Simpan</button>
       </div>
     </div>
   </div>
@@ -381,16 +420,29 @@
             <div class="cat-opt" data-val="Body & Paint" onclick="selOpt(this,'svcf-type')">🎨 Body & Paint</div>
             <div class="cat-opt" data-val="Modifikasi" onclick="selOpt(this,'svcf-type')">⚡ Modifikasi</div>
             <div class="cat-opt" data-val="Lainnya" onclick="selOpt(this,'svcf-type')">🔧 Lainnya</div>
-          </div><input type="hidden" id="svcf-type" value="Ganti Oli">
+          </div>
+          <input type="hidden" id="svcf-type" value="Ganti Oli">
         </div>
-        <div class="form-group"><label class="form-label">Tanggal</label><input class="form-input" id="svcf-date" type="date"></div>
+        <div class="form-group"><label class="form-label">Tanggal</label>
+          <input class="form-input" id="svcf-date" type="date">
+        </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Biaya (Rp)</label><input class="form-input" id="svcf-cost" type="number" placeholder="0"></div>
-          <div class="form-group"><label class="form-label">KM / Odometer</label><input class="form-input" id="svcf-km" type="number" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Biaya (Rp)</label>
+            <input class="form-input" id="svcf-cost" type="number" placeholder="0">
+          </div>
+          <div class="form-group"><label class="form-label">KM / Odometer</label>
+            <input class="form-input" id="svcf-km" type="number" placeholder="0">
+          </div>
         </div>
-        <div class="form-group"><label class="form-label">Bengkel / Mekanik</label><input class="form-input" id="svcf-shop" placeholder="cth. AUTO2000 Jakarta"></div>
-        <div class="form-group"><label class="form-label">Deskripsi Pekerjaan</label><textarea class="form-textarea" id="svcf-desc" placeholder="Detail pekerjaan yang dilakukan..."></textarea></div>
-        <div class="form-group"><label class="form-label">Jadwal Servis Berikutnya</label><input class="form-input" id="svcf-next" type="date"></div>
+        <div class="form-group"><label class="form-label">Bengkel / Mekanik</label>
+          <input class="form-input" id="svcf-shop" placeholder="cth. AUTO2000 Jakarta">
+        </div>
+        <div class="form-group"><label class="form-label">Deskripsi Pekerjaan</label>
+          <textarea class="form-textarea" id="svcf-desc" placeholder="Detail pekerjaan..."></textarea>
+        </div>
+        <div class="form-group"><label class="form-label">Jadwal Servis Berikutnya</label>
+          <input class="form-input" id="svcf-next" type="date">
+        </div>
       </div>
       <div class="btn-row">
         <button class="btn-outline" onclick="closeModal('service-form-modal')">Batal</button>
@@ -416,9 +468,12 @@
             <div class="cat-opt" data-val="3" onclick="selOpt(this,'hoff-rank')">🥉 #3</div>
             <div class="cat-opt" data-val="4" onclick="selOpt(this,'hoff-rank')">4️⃣ #4</div>
             <div class="cat-opt" data-val="5" onclick="selOpt(this,'hoff-rank')">5️⃣ #5</div>
-          </div><input type="hidden" id="hoff-rank" value="1">
+          </div>
+          <input type="hidden" id="hoff-rank" value="1">
         </div>
-        <div class="form-group"><label class="form-label">Alasan Danny 🤩</label><textarea class="form-textarea" id="hoff-reason" placeholder="cth. Ini adalah mahkota garasi saya..."></textarea></div>
+        <div class="form-group"><label class="form-label">Alasan Danny 🤩</label>
+          <textarea class="form-textarea" id="hoff-reason" placeholder="cth. Ini adalah mahkota garasi saya..."></textarea>
+        </div>
         <div class="form-group"><label class="form-label">Tags</label>
           <div class="cat-select">
             <div class="cat-opt" data-val="Tercepat" onclick="toggleHofTag(this)">⚡ Tercepat</div>
@@ -426,7 +481,8 @@
             <div class="cat-opt" data-val="Langka" onclick="toggleHofTag(this)">🦄 Langka</div>
             <div class="cat-opt" data-val="Favorit" onclick="toggleHofTag(this)">❤️ Favorit</div>
             <div class="cat-opt" data-val="Modded" onclick="toggleHofTag(this)">🔧 Modded</div>
-          </div><input type="hidden" id="hoff-tags" value="">
+          </div>
+          <input type="hidden" id="hoff-tags" value="">
         </div>
       </div>
       <div class="btn-row">
@@ -474,92 +530,71 @@
 </div><!-- end app -->
 
 <script>
-// ===== GLOBAL DATA STORE =====
-// Use window.DB so inline scripts and app.js share the same object.
-window.DB = window.DB || {
-  vehicles: [],
-  reminders: [],
-  taxes: [],
-  services: [],
-  hof: [],
-  profile: {}
-};
+// =====================================================================
+// SHARED DB — window.DB dipakai bersama dengan app.js (ES module)
+// JANGAN redeclare dengan "let DB = {...}" — selalu pakai window.DB
+// =====================================================================
+window.DB = window.DB || { vehicles:[], reminders:[], taxes:[], services:[], hof:[], profile:{} };
 
-// ===== FIREBASE STORAGE STATS =====
-// DB state is managed by app.js and exposed as window.DB
-window._fbStorageBytes = 0;
-window._fbStorageLimit = 1073741824; // 1 GB Firestore default quota indicator
-window._fbDocCount = 0;
+// Shortcut lokal — TIDAK boleh reassign, hanya baca/mutate propertinya
+var DB = window.DB;
 
-function getEstimatedStorageBytes() {
-  try { return new Blob([JSON.stringify(window.DB || {})]).size; } catch(e) { return 0; }
-}
-function formatBytes(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
-}
-
-// ===== SYNC INDICATOR =====
-function showSyncIndicator(msg){
-  const el=document.getElementById('sync-indicator');
-  el.textContent=msg; el.classList.add('show');
-}
-function hideSyncIndicator(){
-  const el=document.getElementById('sync-indicator');
-  el.classList.remove('show');
-}
-
-// ===== LOADING SCREEN =====
+// =====================================================================
+// UTILS
+// =====================================================================
 function hideLoadingScreen(){
   const ls=document.getElementById('loading-screen');
+  if(!ls) return;
   ls.classList.add('hidden');
   setTimeout(()=>ls.style.display='none',500);
 }
-
-// saveDB is defined in app.js and will be used for local + Firebase persistence.
-
-// ===== SEED DATA =====
-function seedData(){
-  // Data dummy dihapus - aplikasi dimulai kosong
+function showSyncIndicator(msg){
+  const el=document.getElementById('sync-indicator');
+  if(el){el.textContent=msg;el.classList.add('show');}
 }
-
-// After Firebase loads, hide loading screen
-const _origLoad = window.loadFromFirebase;
-if(_origLoad) {
-  window.loadFromFirebase = async function() {
-    document.getElementById('loading-status').textContent = 'Memuat data garasi...';
-    await _origLoad();
-    hideLoadingScreen();
+function hideSyncIndicator(){
+  const el=document.getElementById('sync-indicator');
+  if(el) el.classList.remove('show');
+}
+function getEstimatedStorageBytes(){
+  try{return new Blob([JSON.stringify(DB)]).size;}catch(e){return 0;}
+}
+function formatBytes(bytes){
+  if(bytes<1024) return bytes+' B';
+  if(bytes<1048576) return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/1048576).toFixed(2)+' MB';
+}
+// Fallback saveDB jika app.js belum load
+if(!window.saveDB){
+  window.saveDB=function(){
+    try{localStorage.setItem('dannys_garage_v1',JSON.stringify(DB));}catch(e){}
   };
 }
 
-// Fallback: hide loading after 5s if Firebase not connected
+// Fallback loading timeout
 setTimeout(()=>{
   hideLoadingScreen();
   if(!window.FBDB){
-    try{
-      const s = localStorage.getItem('dannys_garage_v1');
-      if(s){ const p=JSON.parse(s); DB={...DB,...p}; }
-    }catch(e){}
-    seedData();
+    try{const s=localStorage.getItem('dannys_garage_v1');if(s)Object.assign(DB,JSON.parse(s));}catch(e){}
     renderHome();
   }
-}, 5000);
+},5000);
 
-// ===== NAVIGATION =====
-let currentPage = 'home';
+// =====================================================================
+// NAVIGATION
+// =====================================================================
+let currentPage='home';
 function navigate(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   const el=document.getElementById('page-'+page);
-  if(el){ el.classList.add('active'); el.classList.add('fade-up'); }
+  if(el){el.classList.add('active');el.classList.add('fade-up');}
   currentPage=page;
   renderPage(page);
   document.querySelector('.screen').scrollTo(0,0);
   const navBtns=document.querySelectorAll('.nav-btn');
-  const pageNavMap={home:0,koleksi:1,reminder:2,kalender:3,hof:4};
-  if(pageNavMap[page]!==undefined) navBtns[pageNavMap[page]].classList.add('active');
+  const map={home:0,koleksi:1,reminder:2,kalender:3,hof:4};
+  if(map[page]!==undefined) navBtns[map[page]].classList.add('active');
 }
 function renderPage(page){
   if(page==='home') renderHome();
@@ -572,105 +607,34 @@ function renderPage(page){
   else if(page==='profil') renderProfil();
 }
 
-// ===== UTILS =====
-function uid(){ return 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,5); }
-function fmtRp(n){ return 'Rp '+Number(n||0).toLocaleString('id-ID'); }
+// =====================================================================
+// HELPERS
+// =====================================================================
+function uid(){return 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,5);}
+function fmtRp(n){return 'Rp '+Number(n||0).toLocaleString('id-ID');}
 function getDaysUntil(dateStr){
   if(!dateStr) return 9999;
-  const today=new Date(); today.setHours(0,0,0,0);
-  const exp=new Date(dateStr); exp.setHours(0,0,0,0);
+  const today=new Date();today.setHours(0,0,0,0);
+  const exp=new Date(dateStr);exp.setHours(0,0,0,0);
   return Math.round((exp-today)/(1000*60*60*24));
 }
 function fmtDate(d){
   if(!d) return '—';
-  const dt=new Date(d);
-  return dt.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 }
-function getVehicle(id){ return DB.vehicles.find(v=>v.id===id)||null; }
+function getVehicle(id){return DB.vehicles.find(v=>v.id===id)||null;}
 function getStatusPill(days){
-  if(days<0)  return{cls:'pill-danger',label:'KADALUARSA',icls:'rem-ic-danger',icon:'🚨',cardCls:'danger',color:'#FF5252'};
-  if(days<=7) return{cls:'pill-danger',label:days+'H',icls:'rem-ic-danger',icon:'🔴',cardCls:'danger',color:'#FF5252'};
-  if(days<=30)return{cls:'pill-warn',label:days+'H',icls:'rem-ic-warn',icon:'🟠',cardCls:'warn',color:'#FF7A00'};
-  return{cls:'pill-ok',label:days+'H',icls:'rem-ic-ok',icon:'🟢',cardCls:'ok',color:'#26D97F'};
+  if(days<0)  return{cls:'pill-danger',icls:'rem-ic-danger',cardCls:'danger',color:'#FF5252'};
+  if(days<=7) return{cls:'pill-danger',icls:'rem-ic-danger',cardCls:'danger',color:'#FF5252'};
+  if(days<=30)return{cls:'pill-warn',  icls:'rem-ic-warn',  cardCls:'warn',  color:'#FF7A00'};
+  return          {cls:'pill-ok',    icls:'rem-ic-ok',    cardCls:'ok',    color:'#26D97F'};
 }
 function docTypeIcon(t){
-  const m={STNK:'📄',KIR:'🔬',SIM:'🪪',Asuransi:'🛡️',Pajak:'💰',Lainnya:'📎'};
-  return m[t]||'📄';
+  return {STNK:'📄',KIR:'🔬',SIM:'🪪',Asuransi:'🛡️',Pajak:'💰',Lainnya:'📎'}[t]||'📄';
 }
-
-// ===== VEHICLE TAX ↔ REMINDER SYNC =====
-function getTaxReminderForVehicle(vehicleId){
-  return DB.reminders.find(r=>r.vehicleId===vehicleId && r.fromVehicleTax);
-}
-function syncVehicleTaxReminder(vehicle){
-  const expiry=vehicle.taxExpiry;
-  if(!expiry){
-    DB.reminders=DB.reminders.filter(r=>!(r.vehicleId===vehicle.id && r.fromVehicleTax));
-    return;
-  }
-  const existing=getTaxReminderForVehicle(vehicle.id);
-  const reminder={
-    id: existing ? existing.id : uid(),
-    vehicleId: vehicle.id,
-    doctype: 'Pajak',
-    name: ('Pajak '+(vehicle.name||vehicle.plate||'')).trim(),
-    expiry: expiry,
-    warnDays: Number(vehicle.taxWarnDays||30),
-    number: vehicle.taxNumber||'',
-    notes: vehicle.notes||'',
-    fromVehicleTax: true
-  };
-  if(existing){
-    const i=DB.reminders.findIndex(r=>r.id===existing.id);
-    if(i>=0) DB.reminders[i]=reminder;
-  } else {
-    DB.reminders.push(reminder);
-  }
-}
-function syncReminderToVehicle(reminder){
-  if(!reminder.fromVehicleTax) return;
-  const vehicle=getVehicle(reminder.vehicleId);
-  if(!vehicle) return;
-  vehicle.taxExpiry=reminder.expiry;
-  vehicle.taxWarnDays=Number(reminder.warnDays||30);
-  vehicle.taxNumber=reminder.number||'';
-  const vi=DB.vehicles.findIndex(v=>v.id===vehicle.id);
-  if(vi>=0) DB.vehicles[vi]=vehicle;
-}
-
-// ===== PHOTO HELPERS - FIXED =====
-function updateVehiclePhotoPreview(url){
-  const wrap=document.getElementById('vf-photo-preview');
-  if(!wrap) return;
-  if(url && url.trim()){
-    wrap.innerHTML=`<img src="${url.trim()}" alt="Preview" style="width:100%;height:120px;object-fit:cover;border-radius:12px;display:block;" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:120px;border-radius:12px;background:var(--bg3);color:var(--red2);font-size:12px;\\'>❌ URL tidak valid</div>'">`;
-  } else {
-    wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:120px;border-radius:12px;background:var(--bg3);color:var(--text3);font-size:12px;">Preview foto</div>';
-  }
-}
-
-function handleVehiclePhotoInput(event){
-  const file=event.target.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const dataUrl=e.target.result;
-    document.getElementById('vf-photo').value=dataUrl;
-    updateVehiclePhotoPreview(dataUrl);
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearVehiclePhoto(){
-  document.getElementById('vf-photo').value='';
-  document.getElementById('vf-photo-file').value='';
-  updateVehiclePhotoPreview('');
-}
-
-// ===== TOAST & CONFIRM =====
 function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 let confirmCb=null;
@@ -678,14 +642,11 @@ function showConfirm(title,sub,cb){
   document.getElementById('confirm-title').textContent=title;
   document.getElementById('confirm-sub').textContent=sub;
   confirmCb=cb;
-  document.getElementById('confirm-ok-btn').onclick=()=>{
-    closeModal('confirm-modal');
-    if(confirmCb) confirmCb();
-  };
+  document.getElementById('confirm-ok-btn').onclick=()=>{closeModal('confirm-modal');if(confirmCb)confirmCb();};
   document.getElementById('confirm-modal').classList.add('open');
 }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function closeOverlay(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id);}
 function selOpt(el,hiddenId){
   el.closest('.cat-select').querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));
   el.classList.add('active');
@@ -698,9 +659,135 @@ function toggleHofTag(el){
   el.closest('.cat-select').querySelectorAll('.cat-opt.active').forEach(o=>hofTagsSelected.push(o.dataset.val));
   document.getElementById('hoff-tags').value=hofTagsSelected.join(',');
 }
+function resetCatSel(hiddenId,val){
+  const el=document.getElementById(hiddenId);
+  if(!el) return;
+  el.value=val;
+  const wrap=el.previousElementSibling;
+  if(wrap&&wrap.classList.contains('cat-select')){
+    wrap.querySelectorAll('.cat-opt').forEach(o=>o.classList.toggle('active',o.dataset.val===val));
+  }
+}
+function populateVehicleSelect(selectId,selectedId){
+  const sel=document.getElementById(selectId);if(!sel)return;
+  sel.innerHTML=DB.vehicles.length===0
+    ?'<option value="">-- Tambah kendaraan dulu --</option>'
+    :DB.vehicles.map(v=>`<option value="${v.id}"${v.id===selectedId?' selected':''}>${v.type==='Mobil'?'🚗':'🏍️'} ${v.name} · ${v.plate}</option>`).join('');
+}
 
-// ===== RENDER HOME =====
+// =====================================================================
+// FOTO HELPERS
+// =====================================================================
+function updateVehiclePhotoPreview(url){
+  const wrap=document.getElementById('vf-photo-preview');if(!wrap)return;
+  if(url&&url.trim()){
+    wrap.innerHTML=`<img src="${url.trim()}" alt="Preview" style="width:100%;height:120px;object-fit:cover;border-radius:12px;display:block;" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:120px;border-radius:12px;background:var(--bg3);color:var(--red2);font-size:12px;\\'>❌ URL tidak valid</div>'">`;
+  } else {
+    wrap.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:120px;border-radius:12px;background:var(--bg3);color:var(--text3);font-size:12px;">Preview foto</div>';
+  }
+}
+function handleVehiclePhotoInput(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('vf-photo').value=e.target.result;
+    updateVehiclePhotoPreview(e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+function clearVehiclePhoto(){
+  document.getElementById('vf-photo').value='';
+  document.getElementById('vf-photo-file').value='';
+  updateVehiclePhotoPreview('');
+}
+
+// =====================================================================
+// SYNC PAJAK ↔ KENDARAAN
+// Setiap kendaraan punya 1 tax entry (fromVehicle:true) & 1 reminder pajak
+// =====================================================================
+
+/** Ambil tax entry yang terhubung ke kendaraan ini */
+function getLinkedTax(vehicleId){
+  return DB.taxes.find(t=>t.vehicleId===vehicleId && t.fromVehicle);
+}
+
+/** Ambil reminder pajak yang terhubung ke kendaraan ini */
+function getLinkedTaxReminder(vehicleId){
+  return DB.reminders.find(r=>r.vehicleId===vehicleId && r.fromVehicleTax);
+}
+
+/**
+ * Sinkronkan data pajak dari objek vehicle ke DB.taxes dan DB.reminders.
+ * Dipanggil setiap kali saveVehicle().
+ */
+function syncVehiclePajak(vehicle){
+  const expiry   = vehicle.taxExpiry   || '';
+  const amount   = Number(vehicle.taxAmount  || 0);
+  const type     = vehicle.taxType     || 'PKB';
+  const status   = vehicle.taxStatus   || 'Lunas';
+  const paidDate = vehicle.taxPaidDate || '';
+  const warnDays = Number(vehicle.taxWarnDays || 30);
+  const number   = vehicle.taxNumber   || '';
+
+  // ---- 1. Sync DB.taxes ----
+  const existingTax = getLinkedTax(vehicle.id);
+
+  if(!amount && !expiry){
+    // Tidak ada data pajak → hapus entri terkait
+    DB.taxes     = DB.taxes.filter(t=>!(t.vehicleId===vehicle.id && t.fromVehicle));
+    DB.reminders = DB.reminders.filter(r=>!(r.vehicleId===vehicle.id && r.fromVehicleTax));
+    return;
+  }
+
+  const taxData = {
+    id:        existingTax ? existingTax.id : uid(),
+    vehicleId: vehicle.id,
+    type,
+    amount,
+    paidDate,
+    status,
+    notes:     '',
+    fromVehicle: true  // marker: dikelola dari form kendaraan
+  };
+  if(existingTax){
+    const i=DB.taxes.findIndex(t=>t.id===existingTax.id);
+    if(i>=0) DB.taxes[i]=taxData;
+  } else {
+    DB.taxes.push(taxData);
+  }
+
+  // ---- 2. Sync DB.reminders (hanya jika ada expiry) ----
+  if(!expiry){
+    DB.reminders=DB.reminders.filter(r=>!(r.vehicleId===vehicle.id && r.fromVehicleTax));
+    return;
+  }
+  const existingRem = getLinkedTaxReminder(vehicle.id);
+  const remData = {
+    id:           existingRem ? existingRem.id : uid(),
+    vehicleId:    vehicle.id,
+    doctype:      'Pajak',
+    name:         ('Pajak '+(vehicle.name||vehicle.plate||'')).trim(),
+    expiry,
+    warnDays,
+    number,
+    notes:        '',
+    fromVehicleTax: true
+  };
+  if(existingRem){
+    const i=DB.reminders.findIndex(r=>r.id===existingRem.id);
+    if(i>=0) DB.reminders[i]=remData;
+  } else {
+    DB.reminders.push(remData);
+  }
+}
+
+// =====================================================================
+// HOME
+// =====================================================================
 function renderHome(){
+  // Pastikan DB selalu menunjuk ke window.DB (penting setelah Firebase load)
+  DB = window.DB;
+
   const criticals=DB.reminders.filter(r=>getDaysUntil(r.expiry)<=30).sort((a,b)=>getDaysUntil(a.expiry)-getDaysUntil(b.expiry));
   const warnCount=DB.reminders.filter(r=>getDaysUntil(r.expiry)<=60).length;
   document.getElementById('stat-total').textContent=DB.vehicles.length;
@@ -712,22 +799,18 @@ function renderHome(){
   if(criticals.length>0){
     document.getElementById('hero-alert-badge').style.display='flex';
     document.getElementById('hero-alert-count').textContent=criticals.length;
-  } else {
-    document.getElementById('hero-alert-badge').style.display='none';
-  }
+  } else document.getElementById('hero-alert-badge').style.display='none';
 
   const critEl=document.getElementById('home-critical-docs');
   if(criticals.length===0){
     critEl.innerHTML='<div class="rem-card ok"><div style="padding:4px 0;font-size:12px;color:var(--green);">✅ Semua dokumen aman!</div></div>';
   } else {
     critEl.innerHTML=criticals.slice(0,3).map(r=>{
-      const v=getVehicle(r.vehicleId);
-      const d=getDaysUntil(r.expiry);
-      const s=getStatusPill(d);
+      const v=getVehicle(r.vehicleId);const d=getDaysUntil(r.expiry);const s=getStatusPill(d);
       return`<div class="rem-card ${s.cardCls}" onclick="navigate('reminder')" style="margin-bottom:8px;">
         <div class="rem-icon-wrap ${s.icls}">${docTypeIcon(r.doctype)}</div>
         <div class="rem-content">
-          <div class="rem-doc-type">${r.doctype} ${v?'· '+v.name:''}</div>
+          <div class="rem-doc-type">${r.doctype}${v?' · '+v.name:''}</div>
           <div class="rem-vehicle">${r.name}</div>
           <div class="rem-date">Exp: ${fmtDate(r.expiry)}</div>
         </div>
@@ -747,31 +830,33 @@ function renderHome(){
   }
 
   const badge=document.getElementById('nav-badge');
-  if(criticals.length>0){ badge.style.display='flex'; badge.textContent=criticals.length; }
+  if(criticals.length>0){badge.style.display='flex';badge.textContent=criticals.length;}
   else badge.style.display='none';
 }
 
-// ===== BUILD VEHICLE CARD - FIXED PHOTO =====
+// =====================================================================
+// VEHICLE CARD
+// =====================================================================
 function buildVehicleCard(v){
   const vReminders=DB.reminders.filter(r=>r.vehicleId===v.id);
   const alertPills=vReminders.map(r=>{
-    const d=getDaysUntil(r.expiry);
-    const s=getStatusPill(d);
+    const d=getDaysUntil(r.expiry);const s=getStatusPill(d);
     return`<span class="doc-alert-pill ${s.cls}">${docTypeIcon(r.doctype)} ${r.doctype} ${d<0?'HABIS':d+'H'}</span>`;
   }).join('');
 
-  // FIXED: Proper photo rendering with correct error handling
+  // Tampilkan pajak yang terkait langsung di card
+  const linkedTax=getLinkedTax(v.id);
+  const pajakInfo=linkedTax?`<div style="font-size:10px;color:var(--gold);margin-top:4px;font-family:'Rajdhani',sans-serif;font-weight:700;">💰 ${linkedTax.type} · ${fmtRp(linkedTax.amount)}/thn · <span style="color:${linkedTax.status==='Lunas'?'var(--green)':linkedTax.status==='Segera'?'var(--orange)':'var(--red2)'}">${linkedTax.status}</span></div>`:'' ;
+
   let imgContent;
-  if(v.photo && v.photo.trim()){
-    imgContent=`<img class="vc-img" src="${v.photo.trim()}" alt="${v.name||''}"
-      style="width:100%;height:100%;object-fit:cover;display:block;"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+  if(v.photo&&v.photo.trim()){
+    imgContent=`<img class="vc-img" src="${v.photo.trim()}" alt="${v.name||''}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
       <div class="vc-img-placeholder" style="display:none;">${v.type==='Mobil'?'🚗':'🏍️'}</div>`;
   } else {
     imgContent=`<div class="vc-img-placeholder">${v.type==='Mobil'?'🚗':'🏍️'}</div>`;
   }
 
-  return `<div class="vehicle-card ${v.fav?'featured':''}" onclick="openVehicleDetail('${v.id}')">
+  return`<div class="vehicle-card ${v.fav?'featured':''}" onclick="openVehicleDetail('${v.id}')">
     <div class="vc-img-wrap">
       ${imgContent}
       <div class="vc-badge ${v.type==='Mobil'?'vc-badge-car':'vc-badge-moto'}">${v.type}</div>
@@ -785,6 +870,7 @@ function buildVehicleCard(v){
         <span class="vc-stat-pill pill-silver">${v.color||'—'}</span>
         <span class="vc-stat-pill ${v.status==='Aktif'?'pill-ok':v.status==='Dijual'?'pill-warn':'pill-blue'}">${v.status||'Aktif'}</span>
       </div>
+      ${pajakInfo}
       ${vReminders.length>0?`<div class="vc-alert-row">${alertPills}</div>`:''}
     </div>
     <div class="vc-actions" onclick="event.stopPropagation();">
@@ -794,7 +880,9 @@ function buildVehicleCard(v){
   </div>`;
 }
 
-// ===== KOLEKSI =====
+// =====================================================================
+// KOLEKSI
+// =====================================================================
 let vehicleFilter='semua';
 function filterVehicles(f,el){
   vehicleFilter=f;
@@ -803,22 +891,20 @@ function filterVehicles(f,el){
   renderKoleksi();
 }
 function renderKoleksi(){
+  DB=window.DB;
   const list=document.getElementById('koleksi-list');
   let vv=DB.vehicles;
   if(vehicleFilter!=='semua') vv=vv.filter(v=>v.type===vehicleFilter);
   if(vv.length===0){
-    list.innerHTML='<div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-text">Belum ada kendaraan.</div></div>';
-    return;
+    list.innerHTML='<div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-text">Belum ada kendaraan.</div></div>';return;
   }
   list.innerHTML=vv.map(v=>buildVehicleCard(v)).join('');
 }
-function openVehicleDetail(id){
-  const v=getVehicle(id);
-  if(!v) return;
-  openEditVehicle(v);
-}
+function openVehicleDetail(id){const v=getVehicle(id);if(v) openEditVehicle(v);}
 
-// ===== VEHICLE FORM =====
+// =====================================================================
+// VEHICLE FORM
+// =====================================================================
 function openAddVehicle(){
   document.getElementById('vf-title').textContent='Tambah Kendaraan';
   document.getElementById('vf-id').value='';
@@ -828,17 +914,25 @@ function openAddVehicle(){
   document.getElementById('vf-color').value='';
   document.getElementById('vf-photo').value='';
   document.getElementById('vf-photo-file').value='';
+  document.getElementById('vf-notes').value='';
+  // Reset pajak
+  resetCatSel('vf-tax-type','PKB');
+  document.getElementById('vf-tax-amount').value='';
   document.getElementById('vf-tax-expiry').value='';
+  document.getElementById('vf-tax-paid-date').value='';
+  resetCatSel('vf-tax-status','Lunas');
   document.getElementById('vf-tax-warn-days').value='30';
   document.getElementById('vf-tax-number').value='';
-  document.getElementById('vf-notes').value='';
+  // Reset lain
   resetCatSel('vf-type','Mobil');
   resetCatSel('vf-status','Aktif');
   resetCatSel('vf-fav','false');
   updateVehiclePhotoPreview('');
   document.getElementById('vehicle-form-modal').classList.add('open');
 }
+
 function openEditVehicle(v){
+  if(!v) return;
   document.getElementById('vf-title').textContent='Edit Kendaraan';
   document.getElementById('vf-id').value=v.id;
   document.getElementById('vf-name').value=v.name||'';
@@ -847,71 +941,78 @@ function openEditVehicle(v){
   document.getElementById('vf-color').value=v.color||'';
   document.getElementById('vf-photo').value=v.photo||'';
   document.getElementById('vf-photo-file').value='';
-  document.getElementById('vf-tax-expiry').value=v.taxExpiry||'';
-  document.getElementById('vf-tax-warn-days').value=v.taxWarnDays||30;
-  document.getElementById('vf-tax-number').value=v.taxNumber||'';
   document.getElementById('vf-notes').value=v.notes||'';
   resetCatSel('vf-type',v.type||'Mobil');
   resetCatSel('vf-status',v.status||'Aktif');
   resetCatSel('vf-fav',v.fav?'true':'false');
   updateVehiclePhotoPreview(v.photo||'');
+
+  // Isi data pajak dari vehicle ATAU dari DB.taxes yang terkait
+  const linkedTax=getLinkedTax(v.id);
+  resetCatSel('vf-tax-type',  v.taxType     || (linkedTax&&linkedTax.type)   || 'PKB');
+  document.getElementById('vf-tax-amount').value   = v.taxAmount   || (linkedTax&&linkedTax.amount)  || '';
+  document.getElementById('vf-tax-expiry').value   = v.taxExpiry   || '';
+  document.getElementById('vf-tax-paid-date').value= v.taxPaidDate || (linkedTax&&linkedTax.paidDate)|| '';
+  resetCatSel('vf-tax-status',v.taxStatus   || (linkedTax&&linkedTax.status) || 'Lunas');
+  document.getElementById('vf-tax-warn-days').value= v.taxWarnDays || 30;
+  document.getElementById('vf-tax-number').value   = v.taxNumber   || '';
+
   document.getElementById('vehicle-form-modal').classList.add('open');
 }
-function resetCatSel(hiddenId,val){
-  const hiddenEl=document.getElementById(hiddenId);
-  if(!hiddenEl) return;
-  hiddenEl.value=val;
-  const wrap=hiddenEl.previousElementSibling;
-  if(wrap && wrap.classList.contains('cat-select')){
-    wrap.querySelectorAll('.cat-opt').forEach(o=>{
-      o.classList.toggle('active', o.dataset.val===val);
-    });
-  }
-}
+
 function saveVehicle(){
+  DB=window.DB;
   const id=document.getElementById('vf-id').value;
   const data={
     id: id||uid(),
-    name: document.getElementById('vf-name').value.trim(),
-    type: document.getElementById('vf-type').value,
-    plate: document.getElementById('vf-plate').value.trim().toUpperCase(),
-    year: document.getElementById('vf-year').value,
-    color: document.getElementById('vf-color').value.trim(),
-    photo: document.getElementById('vf-photo').value.trim(),
-    taxExpiry: document.getElementById('vf-tax-expiry').value,
+    name:      document.getElementById('vf-name').value.trim(),
+    type:      document.getElementById('vf-type').value,
+    plate:     document.getElementById('vf-plate').value.trim().toUpperCase(),
+    year:      document.getElementById('vf-year').value,
+    color:     document.getElementById('vf-color').value.trim(),
+    photo:     document.getElementById('vf-photo').value.trim(),
+    notes:     document.getElementById('vf-notes').value.trim(),
+    status:    document.getElementById('vf-status').value,
+    fav:       document.getElementById('vf-fav').value==='true',
+    // Data pajak disimpan ke vehicle juga agar mudah di-load kembali
+    taxType:     document.getElementById('vf-tax-type').value,
+    taxAmount:   Number(document.getElementById('vf-tax-amount').value)||0,
+    taxExpiry:   document.getElementById('vf-tax-expiry').value,
+    taxPaidDate: document.getElementById('vf-tax-paid-date').value,
+    taxStatus:   document.getElementById('vf-tax-status').value,
     taxWarnDays: Number(document.getElementById('vf-tax-warn-days').value)||30,
-    taxNumber: document.getElementById('vf-tax-number').value.trim(),
-    notes: document.getElementById('vf-notes').value.trim(),
-    status: document.getElementById('vf-status').value,
-    fav: document.getElementById('vf-fav').value==='true'
+    taxNumber:   document.getElementById('vf-tax-number').value.trim(),
   };
-  if(!data.name){ showToast('⚠️ Nama wajib diisi!'); return; }
+  if(!data.name){showToast('⚠️ Nama wajib diisi!');return;}
   if(id){
     const i=DB.vehicles.findIndex(v=>v.id===id);
     if(i>=0) DB.vehicles[i]=data;
   } else {
     DB.vehicles.push(data);
   }
-  syncVehicleTaxReminder(data);
+  // Sinkron ke DB.taxes dan DB.reminders secara otomatis
+  syncVehiclePajak(data);
   saveDB();
   closeModal('vehicle-form-modal');
-  showToast('✅ Kendaraan disimpan!');
+  showToast('✅ Kendaraan & pajak disimpan!');
   renderPage(currentPage);
 }
+
 function deleteVehicle(id){
   showConfirm('Hapus Kendaraan?','Data reminder dan servis terkait juga akan hilang.',()=>{
-    DB.vehicles=DB.vehicles.filter(v=>v.id!==id);
+    DB=window.DB;
+    DB.vehicles =DB.vehicles.filter(v=>v.id!==id);
     DB.reminders=DB.reminders.filter(r=>r.vehicleId!==id);
-    DB.taxes=DB.taxes.filter(t=>t.vehicleId!==id);
-    DB.services=DB.services.filter(s=>s.vehicleId!==id);
-    DB.hof=DB.hof.filter(h=>h.vehicleId!==id);
-    saveDB();
-    showToast('🗑️ Kendaraan dihapus');
-    renderPage(currentPage);
+    DB.taxes    =DB.taxes.filter(t=>t.vehicleId!==id);
+    DB.services =DB.services.filter(s=>s.vehicleId!==id);
+    DB.hof      =DB.hof.filter(h=>h.vehicleId!==id);
+    saveDB();showToast('🗑️ Kendaraan dihapus');renderPage(currentPage);
   });
 }
 
-// ===== REMINDERS =====
+// =====================================================================
+// REMINDERS
+// =====================================================================
 let reminderFilter='semua';
 function filterReminders(f,el){
   reminderFilter=f;
@@ -920,33 +1021,36 @@ function filterReminders(f,el){
   renderReminders();
 }
 function renderReminders(){
+  DB=window.DB;
   let rr=DB.reminders.map(r=>({...r,days:getDaysUntil(r.expiry)})).sort((a,b)=>a.days-b.days);
   if(reminderFilter==='kritis') rr=rr.filter(r=>r.days<=7);
   else if(reminderFilter==='warn') rr=rr.filter(r=>r.days>7&&r.days<=30);
   else if(reminderFilter==='ok') rr=rr.filter(r=>r.days>30);
   const el=document.getElementById('reminder-list');
   if(rr.length===0){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">⏰</div><div class="empty-text">Tidak ada reminder.</div></div>';
-    return;
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">⏰</div><div class="empty-text">Tidak ada reminder.</div></div>';return;
   }
   el.innerHTML=rr.map(r=>{
-    const v=getVehicle(r.vehicleId);
-    const s=getStatusPill(r.days);
-    const linkedBadge=r.fromVehicleTax?'<span style="font-size:9px;background:rgba(201,168,76,0.15);color:var(--gold);border-radius:4px;padding:1px 5px;font-family:Rajdhani,sans-serif;font-weight:700;">🔗 Terkait Kendaraan</span>':'';
+    const v=getVehicle(r.vehicleId);const s=getStatusPill(r.days);
+    const linkedBadge=r.fromVehicleTax?'<span style="font-size:9px;background:rgba(201,168,76,0.15);color:var(--gold);border-radius:4px;padding:1px 5px;font-family:Rajdhani,sans-serif;font-weight:700;">🔗 Dari Koleksi</span>':'';
     return`<div class="rem-card ${s.cardCls}" style="margin-bottom:10px;">
       <div class="rem-icon-wrap ${s.icls}">${docTypeIcon(r.doctype)}</div>
       <div class="rem-content">
         <div class="rem-doc-type">${r.doctype}${v?' · '+v.name:''} ${linkedBadge}</div>
         <div class="rem-vehicle">${r.name}</div>
-        <div class="rem-date">Exp: ${fmtDate(r.expiry)} ${r.number?'· #'+r.number:''}</div>
+        <div class="rem-date">Exp: ${fmtDate(r.expiry)}${r.number?' · #'+r.number:''}</div>
         ${r.notes?`<div style="font-size:10px;color:var(--text3);margin-top:3px;">${r.notes}</div>`:''}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-        <div class="rem-days-badge" style="color:${s.color};">${r.days<0?'HABIS':r.days}</div>
-        <div class="rem-days-lbl" style="color:${s.color};">${r.days<0?'expired':'hari lagi'}</div>
-        <div style="display:flex;gap:4px;">
-          <button class="ab ab-edit" onclick="event.stopPropagation();openEditReminder('${r.id}')">✏️</button>
-          <button class="ab ab-del" onclick="event.stopPropagation();deleteReminder('${r.id}')">🗑️</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;">
+        <div style="text-align:center;">
+          <div class="rem-days-badge" style="color:${s.color};">${r.days<0?'HABIS':r.days}</div>
+          <div class="rem-days-lbl" style="color:${s.color};">${r.days<0?'expired':'hari lagi'}</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          ${r.fromVehicleTax
+            ? `<button class="ab ab-edit" onclick="event.stopPropagation();openEditVehicle(getVehicle('${r.vehicleId}'))" title="Edit dari Koleksi">✏️</button>`
+            : `<button class="ab ab-edit" onclick="event.stopPropagation();openEditReminder('${r.id}')" title="Edit Reminder">✏️</button>`}
+          <button class="ab ab-del" onclick="event.stopPropagation();deleteReminder('${r.id}')" title="Hapus">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -954,11 +1058,7 @@ function renderReminders(){
 }
 function openAddReminder(){
   document.getElementById('rf-title').textContent='Tambah Reminder';
-  document.getElementById('rf-id').value='';
-  document.getElementById('rf-name').value='';
-  document.getElementById('rf-expiry').value='';
-  document.getElementById('rf-number').value='';
-  document.getElementById('rf-notes').value='';
+  ['rf-id','rf-name','rf-expiry','rf-number','rf-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('rf-warn-days').value='30';
   document.getElementById('rf-tax-link-info').style.display='none';
   resetCatSel('rf-doctype','STNK');
@@ -966,8 +1066,9 @@ function openAddReminder(){
   document.getElementById('reminder-form-modal').classList.add('open');
 }
 function openEditReminder(id){
-  const r=DB.reminders.find(x=>x.id===id);
-  if(!r) return;
+  const r=DB.reminders.find(x=>x.id===id);if(!r)return;
+  // Jika reminder ini dari vehicle, redirect ke edit vehicle
+  if(r.fromVehicleTax){openEditVehicle(getVehicle(r.vehicleId));return;}
   document.getElementById('rf-title').textContent='Edit Reminder';
   document.getElementById('rf-id').value=r.id;
   document.getElementById('rf-name').value=r.name||'';
@@ -975,229 +1076,172 @@ function openEditReminder(id){
   document.getElementById('rf-number').value=r.number||'';
   document.getElementById('rf-notes').value=r.notes||'';
   document.getElementById('rf-warn-days').value=r.warnDays||30;
-  // Show info badge if linked to vehicle tax
-  document.getElementById('rf-tax-link-info').style.display=r.fromVehicleTax?'block':'none';
+  document.getElementById('rf-tax-link-info').style.display='none';
   resetCatSel('rf-doctype',r.doctype||'STNK');
   populateVehicleSelect('rf-vehicle',r.vehicleId);
   document.getElementById('reminder-form-modal').classList.add('open');
 }
 function saveReminder(){
+  DB=window.DB;
   const id=document.getElementById('rf-id').value;
   const exp=document.getElementById('rf-expiry').value;
-  if(!exp){ showToast('⚠️ Tanggal kadaluarsa wajib diisi!'); return; }
-  const existing=id ? DB.reminders.find(r=>r.id===id) : null;
+  if(!exp){showToast('⚠️ Tanggal kadaluarsa wajib diisi!');return;}
   const data={
     id: id||uid(),
     vehicleId: document.getElementById('rf-vehicle').value,
-    doctype: document.getElementById('rf-doctype').value,
-    name: document.getElementById('rf-name').value.trim(),
-    expiry: exp,
-    warnDays: Number(document.getElementById('rf-warn-days').value)||30,
-    number: document.getElementById('rf-number').value.trim(),
-    notes: document.getElementById('rf-notes').value.trim(),
-    fromVehicleTax: existing?.fromVehicleTax||false
+    doctype:   document.getElementById('rf-doctype').value,
+    name:      document.getElementById('rf-name').value.trim(),
+    expiry:    exp,
+    warnDays:  Number(document.getElementById('rf-warn-days').value)||30,
+    number:    document.getElementById('rf-number').value.trim(),
+    notes:     document.getElementById('rf-notes').value.trim(),
+    fromVehicleTax: false
   };
-  if(id){
-    const i=DB.reminders.findIndex(r=>r.id===id);
-    if(i>=0) DB.reminders[i]=data;
-  } else {
-    DB.reminders.push(data);
-  }
-  if(data.fromVehicleTax) syncReminderToVehicle(data);
-  saveDB();
-  closeModal('reminder-form-modal');
-  showToast('✅ Reminder disimpan!');
-  renderPage(currentPage);
+  if(id){const i=DB.reminders.findIndex(r=>r.id===id);if(i>=0)DB.reminders[i]=data;}
+  else DB.reminders.push(data);
+  saveDB();closeModal('reminder-form-modal');showToast('✅ Reminder disimpan!');renderPage(currentPage);
 }
 function deleteReminder(id){
   showConfirm('Hapus Reminder?','Data ini akan hilang permanen.',()=>{
+    DB=window.DB;
+    // Jika ini reminder pajak dari vehicle, tanya apakah hapus pajak vehicle juga
+    const r=DB.reminders.find(x=>x.id===id);
     DB.reminders=DB.reminders.filter(r=>r.id!==id);
-    saveDB();
-    showToast('🗑️ Reminder dihapus');
-    renderReminders();
+    if(r&&r.fromVehicleTax){
+      // Hapus juga tax entry terkait
+      DB.taxes=DB.taxes.filter(t=>!(t.vehicleId===r.vehicleId&&t.fromVehicle));
+      // Reset field pajak di vehicle
+      const vi=DB.vehicles.findIndex(v=>v.id===r.vehicleId);
+      if(vi>=0){
+        DB.vehicles[vi].taxExpiry='';DB.vehicles[vi].taxAmount=0;
+        DB.vehicles[vi].taxStatus='Lunas';DB.vehicles[vi].taxPaidDate='';
+      }
+    }
+    saveDB();showToast('🗑️ Reminder dihapus');renderReminders();
   });
 }
 
-// ===== PAJAK =====
+// =====================================================================
+// PAJAK — Read-only view, diedit dari Koleksi
+// =====================================================================
 function renderPajak(){
+  DB=window.DB;
   const total=DB.taxes.reduce((s,t)=>s+Number(t.amount||0),0);
   const paid=DB.taxes.filter(t=>t.status==='Lunas').length;
   document.getElementById('pajak-total-amount').textContent=fmtRp(total);
   document.getElementById('pajak-vehicle-count').textContent=DB.vehicles.length;
   document.getElementById('pajak-paid-count').textContent=paid+'/'+DB.taxes.length;
   document.getElementById('pajak-subtitle').textContent=`${DB.taxes.length} item · ${fmtRp(total)} total/tahun`;
-  const byVehicle={};
-  DB.taxes.forEach(t=>{if(!byVehicle[t.vehicleId])byVehicle[t.vehicleId]=[];byVehicle[t.vehicleId].push(t);});
-  DB.vehicles.forEach(v=>{if(!byVehicle[v.id])byVehicle[v.id]=[];});
+
   const el=document.getElementById('pajak-content');
   if(DB.taxes.length===0&&DB.vehicles.length===0){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada data pajak.</div></div>';
-    return;
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">Belum ada data pajak.</div></div>';return;
   }
-  el.innerHTML=Object.keys(byVehicle).map(vid=>{
-    const v=getVehicle(vid);
-    if(!v) return '';
-    const taxes=byVehicle[vid];
+
+  // Group by vehicle
+  const byVehicle={};
+  DB.vehicles.forEach(v=>{byVehicle[v.id]=[];});
+  DB.taxes.forEach(t=>{if(byVehicle[t.vehicleId])byVehicle[t.vehicleId].push(t);});
+
+  el.innerHTML=DB.vehicles.map(v=>{
+    const taxes=byVehicle[v.id]||[];
     const subTotal=taxes.reduce((s,t)=>s+Number(t.amount||0),0);
-    const taxRows=taxes.length>0 ? taxes.map(t=>{
+    const taxRows=taxes.length>0?taxes.map(t=>{
       const statusStyle=t.status==='Lunas'?'pill-ok':t.status==='Segera'?'pill-warn':'pill-danger';
       return`<div class="tax-row">
         <div>
-          <div class="tax-name">${t.type}</div>
-          ${t.notes?`<div style="font-size:10px;color:var(--text3);">${t.notes}</div>`:''}
+          <div class="tax-name">${t.type}${t.fromVehicle?' <span style="font-size:9px;color:var(--gold);">🔗</span>':''}</div>
+          ${t.paidDate?`<div style="font-size:10px;color:var(--text3);">Dibayar: ${fmtDate(t.paidDate)}</div>`:''}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
           <div class="tax-amt">${fmtRp(t.amount)}</div>
           <span class="doc-alert-pill ${statusStyle}" style="font-size:9px;">${t.status}</span>
-          <button class="ab ab-edit" onclick="openEditTax('${t.id}')">✏️</button>
-          <button class="ab ab-del" onclick="deleteTax('${t.id}')">🗑️</button>
+          <button class="ab ab-edit" title="Edit via Koleksi" onclick="openEditVehicle(getVehicle('${v.id}'))">✏️</button>
         </div>
       </div>`;
-    }).join('') : `<div class="tax-row"><span style="font-size:12px;color:var(--text3);">Belum ada data pajak</span></div>`;
+    }).join(''):`<div class="tax-row"><span style="font-size:12px;color:var(--text3);">Belum ada data pajak — <span style="color:var(--gold);cursor:pointer;" onclick="openEditVehicle(getVehicle('${v.id}'))">Tambah via Koleksi →</span></span></div>`;
+
     return`<div class="tax-card">
       <div class="tax-card-header">
         <div style="font-size:24px;">${v.type==='Mobil'?'🚗':'🏍️'}</div>
         <div style="flex:1;">
           <div class="tax-vh-name">${v.name}</div>
-          <div class="tax-plate">${v.plate} · ${fmtRp(subTotal)}/thn</div>
+          <div class="tax-plate">${v.plate}${subTotal?' · '+fmtRp(subTotal)+'/thn':''}</div>
         </div>
-        <button class="btn-add-sm" onclick="openAddTaxForVehicle('${v.id}')">+ Pajak</button>
+        <button class="btn-add-sm" onclick="openEditVehicle(getVehicle('${v.id}'))">✏️ Edit</button>
       </div>
       <div class="tax-items">${taxRows}</div>
     </div>`;
   }).join('');
 }
-function openAddTax(){
-  document.getElementById('tf-title').textContent='Tambah Pajak';
-  document.getElementById('tf-id').value='';
-  document.getElementById('tf-amount').value='';
-  document.getElementById('tf-paid-date').value='';
-  document.getElementById('tf-notes').value='';
-  resetCatSel('tf-type','PKB');
-  resetCatSel('tf-status','Lunas');
-  populateVehicleSelect('tf-vehicle','');
-  document.getElementById('tax-form-modal').classList.add('open');
-}
-function openAddTaxForVehicle(vid){
-  openAddTax();
-  document.getElementById('tf-vehicle').value=vid;
-}
-function openEditTax(id){
-  const t=DB.taxes.find(x=>x.id===id);
-  if(!t) return;
-  document.getElementById('tf-title').textContent='Edit Pajak';
-  document.getElementById('tf-id').value=t.id;
-  document.getElementById('tf-amount').value=t.amount||0;
-  document.getElementById('tf-paid-date').value=t.paidDate||'';
-  document.getElementById('tf-notes').value=t.notes||'';
-  resetCatSel('tf-type',t.type||'PKB');
-  resetCatSel('tf-status',t.status||'Lunas');
-  populateVehicleSelect('tf-vehicle',t.vehicleId);
-  document.getElementById('tax-form-modal').classList.add('open');
-}
-function saveTax(){
-  const id=document.getElementById('tf-id').value;
-  const data={
-    id: id||uid(),
-    vehicleId: document.getElementById('tf-vehicle').value,
-    type: document.getElementById('tf-type').value,
-    amount: Number(document.getElementById('tf-amount').value)||0,
-    paidDate: document.getElementById('tf-paid-date').value,
-    status: document.getElementById('tf-status').value,
-    notes: document.getElementById('tf-notes').value.trim()
-  };
-  if(id){
-    const i=DB.taxes.findIndex(t=>t.id===id);
-    if(i>=0) DB.taxes[i]=data;
-  } else {
-    DB.taxes.push(data);
-  }
-  saveDB();
-  closeModal('tax-form-modal');
-  showToast('✅ Pajak disimpan!');
-  renderPajak();
-}
-function deleteTax(id){
-  showConfirm('Hapus Data Pajak?','Tidak bisa dibatalkan.',()=>{
-    DB.taxes=DB.taxes.filter(t=>t.id!==id);
-    saveDB();
-    showToast('🗑️ Dihapus');
-    renderPajak();
-  });
-}
 
-// ===== KALENDER =====
+// =====================================================================
+// KALENDER
+// =====================================================================
 let calDate=new Date();
-function prevMonth(){ calDate.setMonth(calDate.getMonth()-1); renderKalender(); }
-function nextMonth(){ calDate.setMonth(calDate.getMonth()+1); renderKalender(); }
+function prevMonth(){calDate.setMonth(calDate.getMonth()-1);renderKalender();}
+function nextMonth(){calDate.setMonth(calDate.getMonth()+1);renderKalender();}
 function renderKalender(){
+  DB=window.DB;
   const MONTHS=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   document.getElementById('cal-month-label').textContent=MONTHS[calDate.getMonth()]+' '+calDate.getFullYear();
-  const year=calDate.getFullYear(), month=calDate.getMonth();
+  const year=calDate.getFullYear(),month=calDate.getMonth();
   const firstDay=(new Date(year,month,1).getDay()+6)%7;
   const daysInMonth=new Date(year,month+1,0).getDate();
   const today=new Date();
   const monthEvents=[];
   DB.reminders.forEach(r=>{
-    if(!r.expiry) return;
+    if(!r.expiry)return;
     const d=new Date(r.expiry);
-    if(d.getFullYear()===year && d.getMonth()===month){
+    if(d.getFullYear()===year&&d.getMonth()===month){
       const days=getDaysUntil(r.expiry);
-      monthEvents.push({day:d.getDate(),name:r.name,type:'reminder',days,color:days<=7?'#FF5252':days<=30?'#FF7A00':'#26D97F'});
+      monthEvents.push({day:d.getDate(),name:r.name,days,color:days<=7?'#FF5252':days<=30?'#FF7A00':'#26D97F'});
     }
   });
   DB.services.forEach(s=>{
-    if(!s.next) return;
+    if(!s.next)return;
     const d=new Date(s.next);
-    if(d.getFullYear()===year && d.getMonth()===month){
+    if(d.getFullYear()===year&&d.getMonth()===month){
       const v=getVehicle(s.vehicleId);
-      monthEvents.push({day:d.getDate(),name:'Servis: '+(v?v.name:''),type:'service',color:'#1E90FF'});
+      monthEvents.push({day:d.getDate(),name:'Servis: '+(v?v.name:''),color:'#1E90FF'});
     }
   });
   const eventDays=monthEvents.map(e=>e.day);
   const dangerDays=monthEvents.filter(e=>e.days<=7).map(e=>e.day);
-  const grid=document.getElementById('cal-grid');
   const DAYS=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
   let html=DAYS.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
   for(let i=0;i<firstDay;i++) html+=`<div class="cal-day other-month"></div>`;
   for(let d=1;d<=daysInMonth;d++){
     const isToday=today.getDate()===d&&today.getMonth()===month&&today.getFullYear()===year;
-    const hasEv=eventDays.includes(d);
-    const isDanger=dangerDays.includes(d);
-    html+=`<div class="cal-day ${isToday?'today':''} ${hasEv?'has-event':''} ${isDanger?'danger-day':''}">${d}</div>`;
+    html+=`<div class="cal-day ${isToday?'today':''} ${eventDays.includes(d)?'has-event':''} ${dangerDays.includes(d)?'danger-day':''}">${d}</div>`;
   }
-  grid.innerHTML=html;
+  document.getElementById('cal-grid').innerHTML=html;
   const evList=document.getElementById('cal-events-list');
-  if(monthEvents.length===0){
-    evList.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Tidak ada agenda bulan ini.</div>';
-    return;
-  }
+  if(monthEvents.length===0){evList.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Tidak ada agenda bulan ini.</div>';return;}
   evList.innerHTML=monthEvents.sort((a,b)=>a.day-b.day).map(e=>
     `<div class="cal-event-item">
       <div class="cal-event-dot" style="background:${e.color};"></div>
       <div class="cal-event-name">${e.name}</div>
       <div class="cal-event-date">${e.day} ${MONTHS[month].substr(0,3)}</div>
-    </div>`
-  ).join('');
+    </div>`).join('');
 }
 
-// ===== SERVIS =====
+// =====================================================================
+// SERVIS
+// =====================================================================
 let servisFilter='semua';
 function renderServis(){
+  DB=window.DB;
   const tabsEl=document.getElementById('servis-filter-tabs');
   tabsEl.innerHTML=`<button class="tab-btn ${servisFilter==='semua'?'active':''}" onclick="filterServis('semua',this)">Semua</button>`
     +DB.vehicles.map(v=>`<button class="tab-btn ${servisFilter===v.id?'active':''}" onclick="filterServis('${v.id}',this)">${v.type==='Mobil'?'🚗':'🏍️'} ${v.name.split(' ')[0]}</button>`).join('');
-  let ss=DB.services.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  let ss=[...DB.services].sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(servisFilter!=='semua') ss=ss.filter(s=>s.vehicleId===servisFilter);
   const el=document.getElementById('servis-content');
-  if(ss.length===0){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">🔧</div><div class="empty-text">Belum ada riwayat servis.</div></div>';
-    return;
-  }
+  if(ss.length===0){el.innerHTML='<div class="empty-state"><div class="empty-icon">🔧</div><div class="empty-text">Belum ada riwayat servis.</div></div>';return;}
   const typeColor={'Ganti Oli':'#26D97F','Tune Up':'#1E90FF','Ganti Ban':'#FF7A00','Body & Paint':'#C9A84C','Modifikasi':'#E03030','Lainnya':'#8A9BAE'};
   el.innerHTML=`<div class="card" style="margin-bottom:10px;">${ss.map((s,i)=>{
-    const v=getVehicle(s.vehicleId);
-    const color=typeColor[s.type]||'#8A9BAE';
+    const v=getVehicle(s.vehicleId);const color=typeColor[s.type]||'#8A9BAE';
     return`<div class="svc-row">
       <div class="svc-dot-wrap">
         <div class="svc-dot" style="background:${color};box-shadow:0 0 6px ${color}55;"></div>
@@ -1233,20 +1277,13 @@ function filterServis(f,el){
 }
 function openAddService(){
   document.getElementById('svcf-title').textContent='Catat Servis';
-  document.getElementById('svcf-id').value='';
-  document.getElementById('svcf-date').value='';
-  document.getElementById('svcf-cost').value='';
-  document.getElementById('svcf-km').value='';
-  document.getElementById('svcf-shop').value='';
-  document.getElementById('svcf-desc').value='';
-  document.getElementById('svcf-next').value='';
+  ['svcf-id','svcf-date','svcf-cost','svcf-km','svcf-shop','svcf-desc','svcf-next'].forEach(id=>document.getElementById(id).value='');
   resetCatSel('svcf-type','Ganti Oli');
   populateVehicleSelect('svcf-vehicle','');
   document.getElementById('service-form-modal').classList.add('open');
 }
 function openEditService(id){
-  const s=DB.services.find(x=>x.id===id);
-  if(!s) return;
+  const s=DB.services.find(x=>x.id===id);if(!s)return;
   document.getElementById('svcf-title').textContent='Edit Servis';
   document.getElementById('svcf-id').value=s.id;
   document.getElementById('svcf-date').value=s.date||'';
@@ -1260,61 +1297,43 @@ function openEditService(id){
   document.getElementById('service-form-modal').classList.add('open');
 }
 function saveService(){
+  DB=window.DB;
   const id=document.getElementById('svcf-id').value;
-  if(!document.getElementById('svcf-date').value){ showToast('⚠️ Tanggal wajib diisi!'); return; }
+  if(!document.getElementById('svcf-date').value){showToast('⚠️ Tanggal wajib diisi!');return;}
   const data={
-    id: id||uid(),
-    vehicleId: document.getElementById('svcf-vehicle').value,
-    type: document.getElementById('svcf-type').value,
-    date: document.getElementById('svcf-date').value,
-    cost: Number(document.getElementById('svcf-cost').value)||0,
-    km: Number(document.getElementById('svcf-km').value)||0,
-    shop: document.getElementById('svcf-shop').value.trim(),
-    desc: document.getElementById('svcf-desc').value.trim(),
-    next: document.getElementById('svcf-next').value
+    id:id||uid(),vehicleId:document.getElementById('svcf-vehicle').value,
+    type:document.getElementById('svcf-type').value,date:document.getElementById('svcf-date').value,
+    cost:Number(document.getElementById('svcf-cost').value)||0,km:Number(document.getElementById('svcf-km').value)||0,
+    shop:document.getElementById('svcf-shop').value.trim(),desc:document.getElementById('svcf-desc').value.trim(),
+    next:document.getElementById('svcf-next').value
   };
-  if(id){
-    const i=DB.services.findIndex(s=>s.id===id);
-    if(i>=0) DB.services[i]=data;
-  } else {
-    DB.services.push(data);
-  }
-  saveDB();
-  closeModal('service-form-modal');
-  showToast('✅ Servis disimpan!');
-  renderServis();
+  if(id){const i=DB.services.findIndex(s=>s.id===id);if(i>=0)DB.services[i]=data;}else DB.services.push(data);
+  saveDB();closeModal('service-form-modal');showToast('✅ Servis disimpan!');renderServis();
 }
 function deleteService(id){
   showConfirm('Hapus Riwayat Servis?','',()=>{
-    DB.services=DB.services.filter(s=>s.id!==id);
-    saveDB();
-    showToast('🗑️ Dihapus');
-    renderServis();
+    DB=window.DB;DB.services=DB.services.filter(s=>s.id!==id);
+    saveDB();showToast('🗑️ Dihapus');renderServis();
   });
 }
 
-// ===== HOF =====
+// =====================================================================
+// HOF
+// =====================================================================
 function renderHof(){
+  DB=window.DB;
   const el=document.getElementById('hof-content');
   const sorted=[...DB.hof].sort((a,b)=>Number(a.rank)-Number(b.rank));
   if(sorted.length===0){
-    el.innerHTML=`<div style="text-align:center;padding:40px 20px;">
-      <div style="font-size:50px;margin-bottom:12px;">🏆</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:.05em;margin-bottom:8px;">Hall of Fame Kosong</div>
-      <div style="font-size:12px;color:var(--text3);line-height:1.6;">Danny belum memilih kendaraan terbaik.</div>
-    </div>`;
-    return;
+    el.innerHTML=`<div style="text-align:center;padding:40px 20px;"><div style="font-size:50px;margin-bottom:12px;">🏆</div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:.05em;margin-bottom:8px;">Hall of Fame Kosong</div><div style="font-size:12px;color:var(--text3);">Danny belum memilih kendaraan terbaik.</div></div>`;return;
   }
   el.innerHTML=sorted.map(h=>{
-    const v=getVehicle(h.vehicleId);
-    if(!v) return '';
+    const v=getVehicle(h.vehicleId);if(!v)return '';
     const rankEmoji=['🥇','🥈','🥉','4️⃣','5️⃣'][h.rank-1]||h.rank;
-    const tags=h.tags ? h.tags.split(',').filter(Boolean) : [];
+    const tags=h.tags?h.tags.split(',').filter(Boolean):[];
     let imgContent;
-    if(v.photo && v.photo.trim()){
-      imgContent=`<img class="hof-img" src="${v.photo.trim()}" alt="${v.name}"
-        style="width:100%;height:100%;object-fit:cover;display:block;"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+    if(v.photo&&v.photo.trim()){
+      imgContent=`<img class="hof-img" src="${v.photo.trim()}" alt="${v.name}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
         <div class="hof-img-placeholder" style="display:none;align-items:center;justify-content:center;height:100%;font-size:48px;">🏎️</div>`;
     } else {
       imgContent=`<div class="hof-img-placeholder" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:48px;">🏎️</div>`;
@@ -1339,191 +1358,105 @@ function openAddHof(){
   document.getElementById('hoff-title').textContent='Tambah HOF';
   document.getElementById('hoff-id').value='';
   document.getElementById('hoff-reason').value='';
-  hofTagsSelected=[];
-  document.getElementById('hoff-tags').value='';
-  document.querySelectorAll('#hof-form-modal .cat-select').forEach(cs=>{
-    cs.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));
-  });
-  resetCatSel('hoff-rank','1');
-  populateVehicleSelect('hoff-vehicle','');
+  hofTagsSelected=[];document.getElementById('hoff-tags').value='';
+  document.querySelectorAll('#hof-form-modal .cat-select').forEach(cs=>cs.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active')));
+  resetCatSel('hoff-rank','1');populateVehicleSelect('hoff-vehicle','');
   document.getElementById('hof-form-modal').classList.add('open');
 }
 function openEditHof(id){
-  const h=DB.hof.find(x=>x.id===id);
-  if(!h) return;
+  const h=DB.hof.find(x=>x.id===id);if(!h)return;
   document.getElementById('hoff-title').textContent='Edit HOF';
   document.getElementById('hoff-id').value=h.id;
   document.getElementById('hoff-reason').value=h.reason||'';
   document.getElementById('hoff-tags').value=h.tags||'';
   hofTagsSelected=(h.tags||'').split(',').filter(Boolean);
-  // Reset all tag opts then re-activate selected
   document.querySelectorAll('#hof-form-modal .cat-select').forEach((cs,idx)=>{
-    if(idx>0) cs.querySelectorAll('.cat-opt').forEach(o=>{
-      o.classList.toggle('active', hofTagsSelected.includes(o.dataset.val));
-    });
+    if(idx>0) cs.querySelectorAll('.cat-opt').forEach(o=>o.classList.toggle('active',hofTagsSelected.includes(o.dataset.val)));
   });
-  resetCatSel('hoff-rank',String(h.rank));
-  populateVehicleSelect('hoff-vehicle',h.vehicleId);
+  resetCatSel('hoff-rank',String(h.rank));populateVehicleSelect('hoff-vehicle',h.vehicleId);
   document.getElementById('hof-form-modal').classList.add('open');
 }
 function saveHof(){
+  DB=window.DB;
   const id=document.getElementById('hoff-id').value;
-  const data={
-    id: id||uid(),
-    vehicleId: document.getElementById('hoff-vehicle').value,
-    rank: Number(document.getElementById('hoff-rank').value)||1,
-    reason: document.getElementById('hoff-reason').value.trim(),
-    tags: document.getElementById('hoff-tags').value
-  };
-  if(id){
-    const i=DB.hof.findIndex(h=>h.id===id);
-    if(i>=0) DB.hof[i]=data;
-  } else {
-    DB.hof.push(data);
-  }
-  saveDB();
-  closeModal('hof-form-modal');
-  showToast('🏆 Masuk Hall of Fame!');
-  renderHof();
+  const data={id:id||uid(),vehicleId:document.getElementById('hoff-vehicle').value,rank:Number(document.getElementById('hoff-rank').value)||1,reason:document.getElementById('hoff-reason').value.trim(),tags:document.getElementById('hoff-tags').value};
+  if(id){const i=DB.hof.findIndex(h=>h.id===id);if(i>=0)DB.hof[i]=data;}else DB.hof.push(data);
+  saveDB();closeModal('hof-form-modal');showToast('🏆 Masuk Hall of Fame!');renderHof();
 }
 function deleteHof(id){
   showConfirm('Keluarkan dari HOF?','',()=>{
-    DB.hof=DB.hof.filter(h=>h.id!==id);
-    saveDB();
-    showToast('🗑️ Dihapus');
-    renderHof();
+    DB=window.DB;DB.hof=DB.hof.filter(h=>h.id!==id);
+    saveDB();showToast('🗑️ Dihapus');renderHof();
   });
 }
 
-// ===== PROFIL - WITH STORAGE INDICATOR =====
+// =====================================================================
+// PROFIL
+// =====================================================================
 function renderProfil(){
+  DB=window.DB;
   const p=DB.profile;
   const totalPajak=DB.taxes.reduce((s,t)=>s+Number(t.amount||0),0);
-  const totalServisCost=DB.services.reduce((s,sv)=>s+Number(sv.cost||0),0);
-
-  // === STORAGE CALCULATION ===
-  const estimatedBytes=getEstimatedStorageBytes();
-  // Firebase Firestore free tier: 1 GiB storage
-  const limitBytes=1073741824;
-  const usedPct=Math.min(100,(estimatedBytes/limitBytes)*100);
-  const docCount=DB.vehicles.length+DB.reminders.length+DB.taxes.length+DB.services.length+DB.hof.length+1;
-
-  // Color gradient based on usage
+  const totalServis=DB.services.reduce((s,sv)=>s+Number(sv.cost||0),0);
+  const estBytes=getEstimatedStorageBytes();
+  const usedPct=Math.min(100,(estBytes/1073741824)*100);
   const storageColor=usedPct<50?'#26D97F':usedPct<80?'#FF7A00':'#FF5252';
   const storageLabel=usedPct<50?'🟢 Aman':usedPct<80?'🟠 Cukup Banyak':'🔴 Hampir Penuh';
-
+  const docCount=DB.vehicles.length+DB.reminders.length+DB.taxes.length+DB.services.length+DB.hof.length+1;
   const el=document.getElementById('profil-content');
   el.innerHTML=`
     <div class="profile-banner">
-      <div class="profile-avatar">${p.photo
-        ?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='<div class=\\'profile-avatar-placeholder\\'>👑</div>'">`
-        :'<div class="profile-avatar-placeholder">👑</div>'}</div>
+      <div class="profile-avatar">${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='<div class=\\'profile-avatar-placeholder\\'>👑</div>'">`:'<div class="profile-avatar-placeholder">👑</div>'}</div>
       <div><div class="profile-name">${p.name||'Danny'}</div><div class="profile-tagline">${p.tagline||'King of the Road'}</div><div class="profile-bio">${p.bio||''}</div></div>
     </div>
-
-    <div class="card card-gold" style="margin-bottom:12px;">
-      <div style="padding:14px 16px;">
-        <div class="sec-label" style="margin-bottom:10px;">Statistik Garasi</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);">${DB.vehicles.length}</div>
-            <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Total Kendaraan</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);">${DB.reminders.length}</div>
-            <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Dokumen Terpantau</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--orange);">${DB.services.length}</div>
-            <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Riwayat Servis</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--red2);">${DB.hof.length}</div>
-            <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Hall of Fame</div>
-          </div>
-        </div>
-        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:11px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Total Pajak/Tahun</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);">${fmtRp(totalPajak)}</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:11px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Total Biaya Servis</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--blue);">${fmtRp(totalServisCost)}</div>
-        </div>
+    <div class="card card-gold" style="margin-bottom:12px;"><div style="padding:14px 16px;">
+      <div class="sec-label" style="margin-bottom:10px;">Statistik Garasi</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);">${DB.vehicles.length}</div><div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Total Kendaraan</div></div>
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);">${DB.reminders.length}</div><div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Dokumen Terpantau</div></div>
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--orange);">${DB.services.length}</div><div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Riwayat Servis</div></div>
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--red2);">${DB.hof.length}</div><div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Hall of Fame</div></div>
       </div>
-    </div>
-
-    <!-- ===== FIREBASE STORAGE INDICATOR ===== -->
-    <div class="card" style="margin-bottom:12px;">
-      <div style="padding:14px 16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <div class="sec-label">🔥 Firebase Storage</div>
-          <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;font-weight:700;">${storageLabel}</div>
-        </div>
-
-        <!-- Storage Bar -->
-        <div style="background:var(--bg3);border-radius:100px;height:8px;overflow:hidden;margin-bottom:10px;">
-          <div style="height:100%;width:${Math.max(usedPct,0.5)}%;background:linear-gradient(90deg,${storageColor}88,${storageColor});border-radius:100px;transition:width 1s ease;"></div>
-        </div>
-
-        <!-- Storage Stats Grid -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${storageColor};">${formatBytes(estimatedBytes)}</div>
-            <div style="font-size:9px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Data Tersimpan</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text2);">${docCount}</div>
-            <div style="font-size:9px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Total Dokumen</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text2);">${usedPct<0.01?'<0.01':usedPct.toFixed(2)}%</div>
-            <div style="font-size:9px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Dari 1 GB</div>
-          </div>
-        </div>
-
-        <!-- Data Breakdown -->
-        <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Rincian Data</div>
-        ${[
-          ['🚗','Kendaraan',DB.vehicles.length,'var(--gold)'],
-          ['⏰','Reminder',DB.reminders.length,'var(--green)'],
-          ['💰','Pajak',DB.taxes.length,'var(--orange)'],
-          ['🔧','Servis',DB.services.length,'var(--blue)'],
-          ['🏆','Hall of Fame',DB.hof.length,'var(--red2)']
-        ].map(([ic,lbl,cnt,clr])=>`
-          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-            <span style="font-size:14px;">${ic}</span>
-            <span style="font-size:12px;color:var(--text2);flex:1;font-family:'Rajdhani',sans-serif;font-weight:600;">${lbl}</span>
-            <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${clr};">${cnt}</span>
-            <span style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;">dokumen</span>
+      <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:11px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Total Pajak/Tahun</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);">${fmtRp(totalPajak)}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:11px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;">Total Biaya Servis</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--blue);">${fmtRp(totalServis)}</div>
+      </div>
+    </div></div>
+    <div class="card" style="margin-bottom:12px;"><div style="padding:14px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="sec-label">🔥 Firebase Storage</div>
+        <div style="font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;font-weight:700;">${storageLabel}</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:100px;height:8px;overflow:hidden;margin-bottom:10px;">
+        <div style="height:100%;width:${Math.max(usedPct,0.1)}%;background:linear-gradient(90deg,${storageColor}88,${storageColor});border-radius:100px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${storageColor};">${formatBytes(estBytes)}</div><div style="font-size:9px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Data Tersimpan</div></div>
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text2);">${docCount}</div><div style="font-size:9px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Total Dokumen</div></div>
+        <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px;text-align:center;"><div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text2);">${usedPct<0.01?'<0.01':usedPct.toFixed(3)}%</div><div style="font-size:9px;color:var(--text3);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;">Dari 1 GB</div></div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(255,160,0,0.05),rgba(255,160,0,0.1));border:1px solid rgba(255,160,0,0.2);border-radius:var(--radius-sm);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-size:11px;color:#FFA000;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">🔥 Firebase Firestore</div><div style="font-size:10px;color:var(--text3);margin-top:2px;">Real-time sync · Free tier 1 GB</div></div>
+        <div style="font-size:11px;color:#FFA000;font-family:'Rajdhani',sans-serif;font-weight:700;">AKTIF ✓</div>
+      </div>
+    </div></div>
+    <div class="card" style="margin-bottom:12px;"><div style="padding:14px 16px;">
+      <div class="sec-label" style="margin-bottom:10px;">Navigasi Cepat</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        ${[['koleksi','🚗','Koleksi Kendaraan'],['reminder','⏰','Reminder Dokumen'],['pajak','💰','Pajak Kendaraan'],['servis','🔧','Riwayat Servis'],['hof','🏆','Hall of Fame'],['kalender','📅','Kalender']].map(([pg,ic,lbl])=>`
+          <div onclick="navigate('${pg}')" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer;" onmouseenter="this.style.background='var(--gold-pale)'" onmouseleave="this.style.background='var(--bg3)'">
+            <span style="font-size:18px;">${ic}</span><span style="font-size:13px;font-weight:600;color:var(--text);">${lbl}</span><span style="margin-left:auto;color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;">›</span>
           </div>`).join('')}
-
-        <div style="background:linear-gradient(135deg,rgba(255,160,0,0.05),rgba(255,160,0,0.1));border:1px solid rgba(255,160,0,0.2);border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-          <div>
-            <div style="font-size:11px;color:#FFA000;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:700;">🔥 Firebase Firestore</div>
-            <div style="font-size:10px;color:var(--text3);margin-top:2px;">Real-time sync · Free tier 1 GB</div>
-          </div>
-          <div style="font-size:11px;color:#FFA000;font-family:'Rajdhani',sans-serif;font-weight:700;">AKTIF ✓</div>
+        <div onclick="showConfirm('Reset Semua Data?','Semua data akan dihapus permanen. Tidak bisa dibatalkan.',()=>{clearAllData();})" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer;margin-top:8px;border:1px solid var(--red);" onmouseenter="this.style.background='rgba(255,0,0,0.1)'" onmouseleave="this.style.background='var(--bg3)'">
+          <span style="font-size:18px;">🗑️</span><span style="font-size:13px;font-weight:600;color:var(--red);">Reset Semua Data</span><span style="margin-left:auto;color:var(--red);">⚠️</span>
         </div>
       </div>
-    </div>
-
-    <div class="card" style="margin-bottom:12px;">
-      <div style="padding:14px 16px;">
-        <div class="sec-label" style="margin-bottom:10px;">Navigasi Cepat</div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          ${[['koleksi','🚗','Koleksi Kendaraan'],['reminder','⏰','Reminder Dokumen'],['pajak','💰','Pajak Kendaraan'],['servis','🔧','Riwayat Servis'],['hof','🏆','Hall of Fame'],['kalender','📅','Kalender']].map(([pg,ic,lbl])=>`
-            <div onclick="navigate('${pg}')" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer;"
-              onmouseenter="this.style.background='var(--gold-pale)'" onmouseleave="this.style.background='var(--bg3)'">
-              <span style="font-size:18px;">${ic}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--text);">${lbl}</span>
-              <span style="margin-left:auto;color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;">›</span>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center;padding:16px 0 8px;font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;letter-spacing:.1em;text-transform:uppercase;">Danny's Garage Hub v2.1 · Powered by 🔥 Firebase</div>
-  `;
+    </div></div>
+    <div style="text-align:center;padding:16px 0 8px;font-size:10px;color:var(--text3);font-family:'Rajdhani',sans-serif;letter-spacing:.1em;text-transform:uppercase;">Danny's Garage Hub v2.2 · Powered by 🔥 Firebase</div>`;
 }
 function openEditProfile(){
   const p=DB.profile;
@@ -1535,32 +1468,21 @@ function openEditProfile(){
   document.getElementById('profile-form-modal').classList.add('open');
 }
 function saveProfile(){
+  DB=window.DB;
   DB.profile={
-    name: document.getElementById('prof-name').value.trim(),
-    tagline: document.getElementById('prof-tagline').value.trim(),
-    bio: document.getElementById('prof-bio').value.trim(),
-    photo: document.getElementById('prof-photo').value.trim(),
-    city: document.getElementById('prof-city').value.trim()
+    name:document.getElementById('prof-name').value.trim(),
+    tagline:document.getElementById('prof-tagline').value.trim(),
+    bio:document.getElementById('prof-bio').value.trim(),
+    photo:document.getElementById('prof-photo').value.trim(),
+    city:document.getElementById('prof-city').value.trim()
   };
-  saveDB();
-  closeModal('profile-form-modal');
-  showToast('✅ Profil disimpan!');
-  renderProfil();
+  saveDB();closeModal('profile-form-modal');showToast('✅ Profil disimpan!');renderProfil();
 }
 
-// ===== HELPERS =====
-function populateVehicleSelect(selectId,selectedId){
-  const sel=document.getElementById(selectId);
-  if(!sel) return;
-  sel.innerHTML=DB.vehicles.length===0
-    ?'<option value="">-- Tambah kendaraan dulu --</option>'
-    :DB.vehicles.map(v=>`<option value="${v.id}" ${v.id===selectedId?'selected':''}>${v.type==='Mobil'?'🚗':'🏍️'} ${v.name} · ${v.plate}</option>`).join('');
-}
-
-// ===== INIT =====
-// Firebase module will call loadFromFirebase on DOMContentLoaded
-// If module fails, fallback is handled by the 5s timeout above
-renderHome(); // Render with empty data while loading
+// =====================================================================
+// INIT
+// =====================================================================
+renderHome(); // Tampil kosong dulu, Firebase akan update setelah load
 </script>
 </body>
 </html>
