@@ -28,7 +28,7 @@
 <!-- LOADING SCREEN -->
 <div class="loading-screen" id="loading-screen">
   <div class="loading-logo">DANNY'S<br>GARAGE</div>
-  <div class="loading-sub">Est. 2024 · Bandung</div>
+  <div class="loading-sub">Est. 2024 · Jakarta</div>
   <div class="loading-spinner"></div>
   <div class="loading-status" id="loading-status">Menghubungkan ke cloud...</div>
 </div>
@@ -47,7 +47,7 @@
         <div class="firebase-badge">🔥 Firebase</div>
         <div id="hero-alert-badge" class="hero-alert-badge" style="display:none;">⚡ <span id="hero-alert-count">0</span> Dokumen Kritis</div>
         <div class="garage-hero-content">
-          <div class="hero-logo-line"><span class="hero-logo-icon">🏁</span><span class="hero-brand">Est. 2024 · Bandung</span></div>
+          <div class="hero-logo-line"><span class="hero-logo-icon">🏁</span><span class="hero-brand">Est. 2015 · Jakarta</span></div>
           <div class="hero-name">DANNY'S<br><span>GARAGE</span></div>
           <div class="hero-tagline">Speed · Style · Prestige</div>
           <div class="hero-stats-row">
@@ -364,7 +364,7 @@
           <div class="form-group"><label class="form-label">Biaya (Rp)</label><input class="form-input" id="svcf-cost" type="number" placeholder="0"></div>
           <div class="form-group"><label class="form-label">KM / Odometer</label><input class="form-input" id="svcf-km" type="number" placeholder="0"></div>
         </div>
-        <div class="form-group"><label class="form-label">Bengkel / Mekanik</label><input class="form-input" id="svcf-shop" placeholder="cth. AUTO2000 Bandung"></div>
+        <div class="form-group"><label class="form-label">Bengkel / Mekanik</label><input class="form-input" id="svcf-shop" placeholder="cth. AUTO2000 Jakarta"></div>
         <div class="form-group"><label class="form-label">Deskripsi Pekerjaan</label><textarea class="form-textarea" id="svcf-desc" placeholder="Detail pekerjaan yang dilakukan..."></textarea></div>
         <div class="form-group"><label class="form-label">Jadwal Servis Berikutnya</label><input class="form-input" id="svcf-next" type="date"></div>
       </div>
@@ -665,14 +665,12 @@ function renderHome(){
 
 // ===== BUILD VEHICLE CARD =====
 function buildVehicleCard(v){
-  const vReminders=DB.remindertax-expiry').value='';
-  document.getElementById('vf-tax-warn-days').value='30';
-  document.getElementById('vf-tax-number').value='';
-  document.getElementById('vf-notes').value='';
-  resetCatSel('vf-type','Mobil');resetCatSel('vf-status','Aktif');resetCatSel('vf-fav','false');
-  updateVehiclePhotoPreview(';return`<span class="doc-alert-pill ${s.cls}">${docTypeIcon(r.doctype)} ${r.doctype} ${d<0?'HABIS':d+'H'}</span>`;}).join('');
-  const imgContent=v.photo?`<img class="vc-img" src="${v.photo}" alt="${v.name}" onerror="this.parentElement.innerHTML='<div class=\\'vc-img-placeholder\\'>${v.type==='Mobil'?'🚗':'🏍️'}</div>'">`:`<div class="vc-img-placeholder">${v.type==='Mobil'?'🚗':'🏍️'}</div>`;
-  return`<div class="vehicle-card ${v.fav?'featured':''}" onclick="openVehicleDetail('${v.id}')"><div class="vc-img-wrap">${imgContent}<div class="vc-badge ${v.type==='Mobil'?'vc-badge-car':'vc-badge-moto'}">${v.type}</div>${v.fav?'<div class="vc-fav">⭐</div>':''}</div><div class="vc-body"><div class="vc-name">${v.name}</div><div class="vc-plate">${v.plate}</div><div class="vc-stats"><span class="vc-stat-pill pill-silver">${v.year}</span><span class="vc-stat-pill pill-silver">${v.color}</span><span class="vc-stat-pill ${v.status==='Aktif'?'pill-ok':v.status==='Dijual'?'pill-warn':'pill-blue'}">${v.status}</span></div>${vReminders.length>0?`<div class="vc-alert-row">${alertPills}</div>`:''}</div></div>`;
+  const vReminders=DB.reminders.filter(r=>r.vehicleId===v.id);
+  const alertPills=vReminders.map(r=>{const d=getDaysUntil(r.expiry);const s=getStatusPill(d);return`<span class="doc-alert-pill ${s.cls}">${docTypeIcon(r.doctype)} ${r.doctype} ${d<0?'HABIS':d+'H'}</span>`;}).join('');
+  const imgContent=v.photo
+    ? `<img class="vc-img" src="${v.photo}" alt="${v.name}" onload="this.nextElementSibling.style.display='none';" onerror="this.onerror=null;this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="vc-img-placeholder" style="display:none">${v.type==='Mobil'?'🚗':'🏍️'}</div>`
+    : `<div class="vc-img-placeholder">${v.type==='Mobil'?'🚗':'🏍️'}</div>`;
+  return `<div class="vehicle-card ${v.fav?'featured':''}" onclick="openVehicleDetail('${v.id}')"><div class="vc-img-wrap">${imgContent}<div class="vc-badge ${v.type==='Mobil'?'vc-badge-car':'vc-badge-moto'}">${v.type}</div>${v.fav?'<div class="vc-fav">⭐</div>':''}</div><div class="vc-body"><div class="vc-name">${v.name}</div><div class="vc-plate">${v.plate}</div><div class="vc-stats"><span class="vc-stat-pill pill-silver">${v.year}</span><span class="vc-stat-pill pill-silver">${v.color}</span><span class="vc-stat-pill ${v.status==='Aktif'?'pill-ok':v.status==='Dijual'?'pill-warn':'pill-blue'}">${v.status}</span></div>${vReminders.length>0?`<div class="vc-alert-row">${alertPills}</div>`:''}</div></div>`;
 }
 
 // ===== KOLEKSI =====
@@ -681,12 +679,11 @@ function filterVehicles(f,el){vehicleFilter=f;document.querySelectorAll('#page-k
 function renderKoleksi(){
   const list=document.getElementById('koleksi-list');
   let vv=DB.vehicles;
-  if(vehicleFilter!=='semua')vtax-expiry').value=v.taxExpiry||'';
-  document.getElementById('vf-tax-warn-days').value=v.taxWarnDays||30;
-  document.getElementById('vf-tax-number').value=v.taxNumber||'';
-  document.getElementById('vf-notes').value=v.notes||'';
-  resetCatSel('vf-type',v.type);resetCatSel('vf-status',v.status||'Aktif');resetCatSel('vf-fav',v.fav?'true':'false');
-  updateVehiclePhotoPreview(v.photo||'">Belum ada kendaraan.</div></div>';return;}
+  if(vehicleFilter!=='semua') vv=vv.filter(v=>v.type===vehicleFilter);
+  if(vv.length===0){
+    list.innerHTML='<div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-text">Belum ada kendaraan.</div></div>';
+    return;
+  }
   list.innerHTML=vv.map(v=>buildVehicleCard(v)).join('');
 }
 function openVehicleDetail(id){const v=getVehicle(id);if(!v)return;openEditVehicle(v);}
@@ -696,24 +693,9 @@ function openAddVehicle(){
   document.getElementById('vf-title').textContent='Tambah Kendaraan';
   document.getElementById('vf-id').value='';
   document.getElementById('vf-name').value='';
-  document.get
-    id:id||uid(),
-    name:document.getElementById('vf-name').value.trim(),
-    type:document.getElementById('vf-type').value,
-    plate:document.getElementById('vf-plate').value.trim().toUpperCase(),
-    year:document.getElementById('vf-year').value,
-    color:document.getElementById('vf-color').value.trim(),
-    photo:document.getElementById('vf-photo').value.trim(),
-    taxExpiry:document.getElementById('vf-tax-expiry').value,
-    taxWarnDays:Number(document.getElementById('vf-tax-warn-days').value)||30,
-    taxNumber:document.getElementById('vf-tax-number').value.trim(),
-    notes:document.getElementById('vf-notes').value.trim(),
-    status:document.getElementById('vf-status').value,
-    fav:document.getElementById('vf-fav').value==='true'
-  };
-  if(!data.name){showToast('⚠️ Nama wajib diisi!');return;}
-  if(id){const i=DB.vehicles.findIndex(v=>v.id===id);if(i>=0)DB.vehicles[i]=data;}else DB.vehicles.push(data);
-  syncVehicleTaxReminder
+  document.getElementById('vf-plate').value='';
+  document.getElementById('vf-year').value='';
+  document.getElementById('vf-color').value='';
   document.getElementById('vf-photo').value='';
   document.getElementById('vf-tax-expiry').value='';
   document.getElementById('vf-tax-warn-days').value='30';
