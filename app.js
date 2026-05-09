@@ -31,6 +31,7 @@ window.saveToFirebase = async function() {
     const profRef = doc(db, 'garage_data', 'profile');
     batch.set(profRef, DB.profile);
     await batch.commit();
+    console.log('Data berhasil disimpan ke Firebase');
   } catch(e) {
     console.error('Firebase save error:', e);
     try { localStorage.setItem('dannys_garage_v1', JSON.stringify(DB)); } catch(le) {}
@@ -52,6 +53,7 @@ window.loadFromFirebase = async function() {
     const profSnap = await getDoc(doc(db, 'garage_data', 'profile'));
     if(profSnap.exists()) {
       DB.profile = profSnap.data();
+      hasData = true;  // Profil juga dihitung sebagai data
     }
     if(!hasData) {
       try {
@@ -131,39 +133,40 @@ if(!window.saveDB){
 }
 
 function seedData(){
-  if(DB.vehicles.length > 0) return;
-  const today = new Date();
-  const fmtD = (d) => d.toISOString().split('T')[0];
-  const addDays = (d,n) => {const r=new Date(d);r.setDate(r.getDate()+n);return r;};
-
-  DB.vehicles = [
-    {id:'v1',name:'Toyota GR Supra A90',type:'Mobil',plate:'B 7 DAN',year:2022,color:'Merah Metalik',photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/2020_Toyota_GR_Supra_2.0_%28EU%29%2C_front_8.26.19.jpg/1280px-2020_Toyota_GR_Supra_2.0_%28EU%29%2C_front_8.26.19.jpg',notes:'Intake aftermarket, knalpot Akrapovic',status:'Aktif',fav:true},
-    {id:'v2',name:'Honda CBR1000RR-R Fireblade',type:'Motor',plate:'D 999 DNY',year:2023,color:'HRC Tricolor',photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Honda_CBR1000RR-R_Fireblade_SP_2021.jpg/1280px-Honda_CBR1000RR-R_Fireblade_SP_2021.jpg',notes:'Full racing spec',status:'Aktif',fav:true},
-    {id:'v3',name:'Jeep Wrangler Rubicon',type:'Mobil',plate:'B 1234 DNY',year:2021,color:'Hitam Matte',photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/2021_Jeep_Wrangler_%28JL%29_Rubicon%2C_front_8.1.21.jpg/1280px-2021_Jeep_Wrangler_%28JL%29_Rubicon%2C_front_8.1.21.jpg',notes:'Lift kit, ban mud terrain',status:'Aktif',fav:false},
-  ];
-  DB.reminders = [
-    {id:'r1',vehicleId:'v1',doctype:'STNK',name:'STNK GR Supra',expiry:fmtD(addDays(today,18)),warnDays:30,number:'1234567890',notes:'Perpanjang di Samsat Bandung'},
-    {id:'r2',vehicleId:'v2',doctype:'STNK',name:'STNK CBR1000RR',expiry:fmtD(addDays(today,5)),warnDays:30,number:'9876543210',notes:''},
-    {id:'r3',vehicleId:'v1',doctype:'Asuransi',name:'Asuransi All Risk Supra',expiry:fmtD(addDays(today,90)),warnDays:30,number:'POL-2024-001',notes:'Garda Oto'},
-    {id:'r4',vehicleId:'v3',doctype:'KIR',name:'KIR Wrangler',expiry:fmtD(addDays(today,-10)),warnDays:30,number:'',notes:'Sudah kadaluarsa!'},
-    {id:'r5',vehicleId:'v1',doctype:'SIM',name:'SIM A Danny',expiry:fmtD(addDays(today,120)),warnDays:60,number:'123456789',notes:''},
-  ];
-  DB.taxes = [
-    {id:'t1',vehicleId:'v1',type:'PKB',amount:12500000,paidDate:fmtD(addDays(today,-180)),status:'Lunas',notes:''},
-    {id:'t2',vehicleId:'v2',type:'PKB',amount:4200000,paidDate:fmtD(addDays(today,-60)),status:'Lunas',notes:''},
-    {id:'t3',vehicleId:'v3',type:'PKB',amount:8750000,paidDate:'',status:'Belum',notes:'Jatuh tempo bulan depan'},
-    {id:'t4',vehicleId:'v1',type:'Asuransi',amount:18000000,paidDate:fmtD(addDays(today,-90)),status:'Lunas',notes:'Garda Oto All Risk'},
-  ];
-  DB.services = [
-    {id:'s1',vehicleId:'v1',type:'Tune Up',date:fmtD(addDays(today,-45)),cost:3500000,km:15000,shop:'Toyota Auto2000 Bandung',desc:'Tune up lengkap, ganti busi, filter udara',next:fmtD(addDays(today,135))},
-    {id:'s2',vehicleId:'v2',type:'Ganti Oli',date:fmtD(addDays(today,-20)),cost:850000,km:8500,shop:'AHASS Resmi',desc:'Ganti oli Motul 300V, filter oli',next:fmtD(addDays(today,80))},
-    {id:'s3',vehicleId:'v1',type:'Modifikasi',date:fmtD(addDays(today,-10)),cost:22000000,km:14500,shop:'Garage 88 Bandung',desc:'Pasang knalpot Akrapovic titanium, velg BBS',next:''},
-  ];
-  DB.hof = [
-    {id:'h1',vehicleId:'v1',rank:1,reason:'Mahkota garasi saya. Tidak ada yang menandingi kombinasi kecepatan, desain, dan charisma mobil ini.',tags:'Tercepat,Favorit,Modded'},
-    {id:'h2',vehicleId:'v2',rank:2,reason:'215 tenaga kuda dalam 200 kg. Ini bukan motor, ini rudal bertirahu.',tags:'Tercepat,Langka'},
-  ];
+  // Data dummy dihapus - aplikasi dimulai kosong
 }
+
+// Fungsi untuk mengosongkan semua data
+window.clearAllData = async function() {
+  DB = {
+    vehicles: [],
+    reminders: [],
+    taxes: [],
+    services: [],
+    hof: [],
+    profile: {}
+  };
+  // Hapus dari localStorage
+  try { localStorage.removeItem('dannys_garage_v1'); } catch(e) {}
+  // Hapus dari Firebase
+  if(window.FBDB) {
+    try {
+      const batch = writeBatch(db);
+      const collections = ['vehicles','reminders','taxes','services','hof','profile'];
+      for(const col of collections) {
+        const ref = doc(db, 'garage_data', col);
+        batch.delete(ref);
+      }
+      await batch.commit();
+      console.log('Semua data dihapus dari Firebase');
+    } catch(e) {
+      console.error('Error menghapus data Firebase:', e);
+    }
+  }
+  // Render ulang
+  renderHome();
+  showToast('✅ Semua data telah dihapus!');
+};
 
 const _origLoad = window.loadFromFirebase;
 if(_origLoad) {
@@ -671,6 +674,7 @@ function renderProfil(){
         <div class="sec-label" style="margin-bottom:10px;">Navigasi Cepat</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           ${[['koleksi','🚗','Koleksi Kendaraan'],['reminder','⏰','Reminder Dokumen'],['pajak','💰','Pajak Kendaraan'],['servis','🔧','Riwayat Servis'],['hof','🏆','Hall of Fame'],['kalender','📅','Kalender']].map(([pg,ic,lbl])=>`<div onclick="navigate('${pg}')" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer;" onmouseenter="this.style.background='var(--gold-pale)'" onmouseleave="this.style.background='var(--bg3)'"><span style="font-size:18px;">${ic}</span><span style="font-size:13px;font-weight:600;color:var(--text);">${lbl}</span><span style="margin-left:auto;color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;">›</span></div>`).join('')}
+          <div onclick="showConfirm('Reset Semua Data?','Semua data akan dihapus permanen dari localStorage dan Firebase. Tindakan ini tidak dapat dibatalkan.',()=>{clearAllData();})" style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);cursor:pointer;margin-top:8px;border:1px solid var(--red);" onmouseenter="this.style.background='rgba(255,0,0,0.1)'" onmouseleave="this.style.background='var(--bg3)'"><span style="font-size:18px;">🗑️</span><span style="font-size:13px;font-weight:600;color:var(--red);">Reset Semua Data</span><span style="margin-left:auto;color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;">⚠️</span></div>
         </div>
       </div>
     </div>
@@ -705,4 +709,10 @@ if ('serviceWorker' in navigator) {
     .catch(error => {
       console.log('Service Worker registration failed:', error);
     });
+}
+
+// Kosongkan data dummy yang ada (hanya sekali saat aplikasi dimuat pertama kali)
+if (!localStorage.getItem('data_cleared_v1')) {
+  clearAllData();
+  localStorage.setItem('data_cleared_v1', 'true');
 }
