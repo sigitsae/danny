@@ -230,6 +230,17 @@
         <div class="form-group"><label class="form-label">Upload Foto</label><input class="form-input" type="file" id="vf-photo-file" accept="image/*" onchange="handleVehiclePhotoInput(event)"></div>
         <div class="form-group" id="vf-photo-preview"><div style="display:flex;align-items:center;justify-content:center;height:120px;border-radius:12px;background:var(--bg3);color:var(--text3);font-size:12px;">Preview foto</div></div>
         <div class="form-group"><button type="button" class="btn-outline" onclick="clearVehiclePhoto()">🗑️ Hapus Foto</button></div>
+        <div class="form-group"><label class="form-label">Tanggal Kadaluarsa Pajak</label><input class="form-input" id="vf-tax-expiry" type="date"></div>
+        <div class="form-group"><label class="form-label">Peringatan H- (hari sebelum)</label>
+          <select class="form-select" id="vf-tax-warn-days">
+            <option value="7">7 hari sebelum</option>
+            <option value="14">14 hari sebelum</option>
+            <option value="30" selected>30 hari sebelum</option>
+            <option value="60">60 hari sebelum</option>
+            <option value="90">90 hari sebelum</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Nomor Dokumen Pajak (opsional)</label><input class="form-input" id="vf-tax-number" placeholder="cth. 1234567890123456"></div>
         <div class="form-group"><label class="form-label">Catatan / Modifikasi</label><textarea class="form-textarea" id="vf-notes" placeholder="cth. Sudah ganti velg, knalpot custom..."></textarea></div>
         <div class="form-group"><label class="form-label">Status</label>
           <div class="cat-select">
@@ -537,6 +548,8 @@ function getDaysUntil(dateStr){
   return Math.round((exp-today)/(1000*60*60*24));
 }
 function fmtDate(d){if(!d)return '—';const dt=new Date(d);return dt.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
+function getStorageBytes(){try{return new Blob([JSON.stringify(DB)]).size;}catch(e){return 0;}}
+function formatBytes(bytes){if(bytes<1024)return bytes+' B';if(bytes<1024*1024)return (bytes/1024).toFixed(1)+' KB';return (bytes/1024/1024).toFixed(2)+' MB';}
 function getVehicle(id){return DB.vehicles.find(v=>v.id===id)||null;}
 function getStatusPill(days){
   if(days<0) return{cls:'pill-danger',label:'KADALUARSA',icls:'rem-ic-danger',icon:'🚨',cardCls:'danger',color:'#FF5252'};
@@ -544,7 +557,61 @@ function getStatusPill(days){
   if(days<=30) return{cls:'pill-warn',label:days+'H',icls:'rem-ic-warn',icon:'🟠',cardCls:'warn',color:'#FF7A00'};
   return{cls:'pill-ok',label:days+'H',icls:'rem-ic-ok',icon:'🟢',cardCls:'ok',color:'#26D97F'};
 }
-function docTypeIcon(t){const m={STNK:'📄',KIR:'🔬',SIM:'🪪',Asuransi:'🛡️',Lainnya:'📎'};return m[t]||'📄';}
+function docTypeIcon(t){const m={STNK:'📄',KIR:'🔬',SIM:'🪪',Asuransi:'🛡️',Pajak:'💰',Lainnya:'📎'};return m[t]||'📄';}
+
+function getTaxReminderForVehicle(vehicleId){return DB.reminders.find(r=>r.vehicleId===vehicleId && r.fromVehicleTax);}
+function syncVehicleTaxReminder(vehicle){
+  const expiry=vehicle.taxExpiry;
+  if(!expiry){DB.reminders=DB.reminders.filter(r=>!(r.vehicleId===vehicle.id && r.fromVehicleTax));return;}
+  const existing=getTaxReminderForVehicle(vehicle.id);
+  const reminder={
+    id:existing?existing.id:uid(),
+    vehicleId:vehicle.id,
+    doctype:'Pajak',
+    name:`Pajak ${vehicle.name||vehicle.plate||''}`.trim(),
+    expiry:expiry,
+    warnDays:Number(vehicle.taxWarnDays||30),
+    number:vehicle.taxNumber||'',
+    notes:vehicle.notes||'',
+    fromVehicleTax:true
+  };
+  if(existing){const i=DB.reminders.findIndex(r=>r.id===existing.id);if(i>=0)DB.reminders[i]=reminder;}else DB.reminders.push(reminder);
+}
+function syncReminderToVehicle(reminder){
+  if(!reminder.fromVehicleTax) return;
+  const vehicle=getVehicle(reminder.vehicleId);
+  if(!vehicle) return;
+  vehicle.taxExpiry=reminder.expiry;
+  vehicle.taxWarnDays=Number(reminder.warnDays||30);
+  vehicle.taxNumber=reminder.number||'';
+m[t]||'📄';}
+
+function getTaxReminderForVehicle(vehicleId){return DB.reminders.find(r=>r.vehicleId===vehicleId && r.fromVehicleTax);}
+function syncVehicleTaxReminder(vehicle){
+  const expiry=vehicle.taxExpiry;
+  if(!expiry){DB.reminders=DB.reminders.filter(r=>!(r.vehicleId===vehicle.id && r.fromVehicleTax));return;}
+  const existing=getTaxReminderForVehicle(vehicle.id);
+  const reminder={
+    id:existing?existing.id:uid(),
+    vehicleId:vehicle.id,
+    doctype:'Pajak',
+    name:`Pajak ${vehicle.name||vehicle.plate||''}`.trim(),
+    expiry:expiry,
+    warnDays:Number(vehicle.taxWarnDays||30),
+    number:vehicle.taxNumber||'',
+    notes:vehicle.notes||'',
+    fromVehicleTax:true
+  };
+  if(existing){const i=DB.reminders.findIndex(r=>r.id===existing.id);if(i>=0)DB.reminders[i]=reminder;}else DB.reminders.push(reminder);
+}
+function syncReminderToVehicle(reminder){
+  if(!reminder.fromVehicleTax) return;
+  const vehicle=getVehicle(reminder.vehicleId);
+  if(!vehicle) return;
+  vehicle.taxExpiry=reminder.expiry;
+  vehicle.taxWarnDays=Number(reminder.warnDays||30);
+  vehicle.taxNumber=reminder.number||'';
+}
 
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -598,8 +665,12 @@ function renderHome(){
 
 // ===== BUILD VEHICLE CARD =====
 function buildVehicleCard(v){
-  const vReminders=DB.reminders.filter(r=>r.vehicleId===v.id);
-  const alertPills=vReminders.map(r=>{const d=getDaysUntil(r.expiry);const s=getStatusPill(d);return`<span class="doc-alert-pill ${s.cls}">${docTypeIcon(r.doctype)} ${r.doctype} ${d<0?'HABIS':d+'H'}</span>`;}).join('');
+  const vReminders=DB.remindertax-expiry').value='';
+  document.getElementById('vf-tax-warn-days').value='30';
+  document.getElementById('vf-tax-number').value='';
+  document.getElementById('vf-notes').value='';
+  resetCatSel('vf-type','Mobil');resetCatSel('vf-status','Aktif');resetCatSel('vf-fav','false');
+  updateVehiclePhotoPreview(';return`<span class="doc-alert-pill ${s.cls}">${docTypeIcon(r.doctype)} ${r.doctype} ${d<0?'HABIS':d+'H'}</span>`;}).join('');
   const imgContent=v.photo?`<img class="vc-img" src="${v.photo}" alt="${v.name}" onerror="this.parentElement.innerHTML='<div class=\\'vc-img-placeholder\\'>${v.type==='Mobil'?'🚗':'🏍️'}</div>'">`:`<div class="vc-img-placeholder">${v.type==='Mobil'?'🚗':'🏍️'}</div>`;
   return`<div class="vehicle-card ${v.fav?'featured':''}" onclick="openVehicleDetail('${v.id}')"><div class="vc-img-wrap">${imgContent}<div class="vc-badge ${v.type==='Mobil'?'vc-badge-car':'vc-badge-moto'}">${v.type}</div>${v.fav?'<div class="vc-fav">⭐</div>':''}</div><div class="vc-body"><div class="vc-name">${v.name}</div><div class="vc-plate">${v.plate}</div><div class="vc-stats"><span class="vc-stat-pill pill-silver">${v.year}</span><span class="vc-stat-pill pill-silver">${v.color}</span><span class="vc-stat-pill ${v.status==='Aktif'?'pill-ok':v.status==='Dijual'?'pill-warn':'pill-blue'}">${v.status}</span></div>${vReminders.length>0?`<div class="vc-alert-row">${alertPills}</div>`:''}</div></div>`;
 }
@@ -610,8 +681,12 @@ function filterVehicles(f,el){vehicleFilter=f;document.querySelectorAll('#page-k
 function renderKoleksi(){
   const list=document.getElementById('koleksi-list');
   let vv=DB.vehicles;
-  if(vehicleFilter!=='semua')vv=vv.filter(v=>v.type===vehicleFilter);
-  if(vv.length===0){list.innerHTML='<div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-text">Belum ada kendaraan.</div></div>';return;}
+  if(vehicleFilter!=='semua')vtax-expiry').value=v.taxExpiry||'';
+  document.getElementById('vf-tax-warn-days').value=v.taxWarnDays||30;
+  document.getElementById('vf-tax-number').value=v.taxNumber||'';
+  document.getElementById('vf-notes').value=v.notes||'';
+  resetCatSel('vf-type',v.type);resetCatSel('vf-status',v.status||'Aktif');resetCatSel('vf-fav',v.fav?'true':'false');
+  updateVehiclePhotoPreview(v.photo||'">Belum ada kendaraan.</div></div>';return;}
   list.innerHTML=vv.map(v=>buildVehicleCard(v)).join('');
 }
 function openVehicleDetail(id){const v=getVehicle(id);if(!v)return;openEditVehicle(v);}
@@ -621,12 +696,31 @@ function openAddVehicle(){
   document.getElementById('vf-title').textContent='Tambah Kendaraan';
   document.getElementById('vf-id').value='';
   document.getElementById('vf-name').value='';
-  document.getElementById('vf-plate').value='';
-  document.getElementById('vf-year').value='';
-  document.getElementById('vf-color').value='';
+  document.get
+    id:id||uid(),
+    name:document.getElementById('vf-name').value.trim(),
+    type:document.getElementById('vf-type').value,
+    plate:document.getElementById('vf-plate').value.trim().toUpperCase(),
+    year:document.getElementById('vf-year').value,
+    color:document.getElementById('vf-color').value.trim(),
+    photo:document.getElementById('vf-photo').value.trim(),
+    taxExpiry:document.getElementById('vf-tax-expiry').value,
+    taxWarnDays:Number(document.getElementById('vf-tax-warn-days').value)||30,
+    taxNumber:document.getElementById('vf-tax-number').value.trim(),
+    notes:document.getElementById('vf-notes').value.trim(),
+    status:document.getElementById('vf-status').value,
+    fav:document.getElementById('vf-fav').value==='true'
+  };
+  if(!data.name){showToast('⚠️ Nama wajib diisi!');return;}
+  if(id){const i=DB.vehicles.findIndex(v=>v.id===id);if(i>=0)DB.vehicles[i]=data;}else DB.vehicles.push(data);
+  syncVehicleTaxReminder
   document.getElementById('vf-photo').value='';
+  document.getElementById('vf-tax-expiry').value='';
+  document.getElementById('vf-tax-warn-days').value='30';
+  document.getElementById('vf-tax-number').value='';
   document.getElementById('vf-notes').value='';
   resetCatSel('vf-type','Mobil');resetCatSel('vf-status','Aktif');resetCatSel('vf-fav','false');
+  updateVehiclePhotoPreview('');
   document.getElementById('vehicle-form-modal').classList.add('open');
 }
 function openEditVehicle(v){
@@ -637,8 +731,12 @@ function openEditVehicle(v){
   document.getElementById('vf-year').value=v.year;
   document.getElementById('vf-color').value=v.color;
   document.getElementById('vf-photo').value=v.photo||'';
+  document.getElementById('vf-tax-expiry').value=v.taxExpiry||'';
+  document.getElementById('vf-tax-warn-days').value=v.taxWarnDays||30;
+  document.getElementById('vf-tax-number').value=v.taxNumber||'';
   document.getElementById('vf-notes').value=v.notes||'';
   resetCatSel('vf-type',v.type);resetCatSel('vf-status',v.status||'Aktif');resetCatSel('vf-fav',v.fav?'true':'false');
+  updateVehiclePhotoPreview(v.photo||'');
   document.getElementById('vehicle-form-modal').classList.add('open');
 }
 function resetCatSel(hiddenId,val){
@@ -648,9 +746,36 @@ function resetCatSel(hiddenId,val){
 }
 function saveVehicle(){
   const id=document.getElementById('vf-id').value;
-  const data={id:id||uid(),name:document.getElementById('vf-name').value.trim(),type:document.getElementById('vf-type').value,plate:document.getElementById('vf-plate').value.trim().toUpperCase(),year:document.getElementById('vf-year').value,color:document.getElementById('vf-color').value.trim(),photo:document.getElementById('vf-photo').value.trim(),notes:document.getElementById('vf-notes').value.trim(),status:document.getElementById('vf-status').value,fav:document.getElementById('vf-fav').value==='true'};
+  const data={
+    id:id||uid(),
+    name:document.getElementById('vf-name').value.trim(),
+    type:document.getElementById('vf-type').value,
+    plate:document.getElementById('vf-plate').value.trim().toUpperCase(),
+    year:document.getElementById('vf-year').value,
+    color:document.getElementById('vf-color').value.trim(),
+    photo:document.getElementById('vf-photo').value.trim(),
+    taxExpiry:document.getElementById('vf-tax-expiry').value,
+    taxWarnDays:Number(document.getElementById('vf-tax-warn-days').value)||30,
+    taxNexisting=id?DB.reminders.find(r=>r.id===id):null;
+  const data={
+    id:id||uid(),
+    vehicleId:document.getElementById('rf-vehicle').value,
+    doctype:document.getElementById('rf-doctype').value,
+    name:document.getElementById('rf-name').value.trim(),
+    expiry:exp,
+    warnDays:Number(document.getElementById('rf-warn-days').value),
+    number:document.getElementById('rf-number').value.trim(),
+    notes:document.getElementById('rf-notes').value.trim(),
+    fromVehicleTax:existing?.fromVehicleTax
+  };
+  if(id){const i=DB.reminders.findIndex(r=>r.id===id);if(i>=0)DB.reminders[i]=data;}else DB.reminders.push(data);
+  if(data.fromVehicleTax) syncReminderToVehicle
+    status:document.getElementById('vf-status').value,
+    fav:document.getElementById('vf-fav').value==='true'
+  };
   if(!data.name){showToast('⚠️ Nama wajib diisi!');return;}
   if(id){const i=DB.vehicles.findIndex(v=>v.id===id);if(i>=0)DB.vehicles[i]=data;}else DB.vehicles.push(data);
+  syncVehicleTaxReminder(data);
   saveDB();closeModal('vehicle-form-modal');showToast('✅ Kendaraan disimpan!');renderPage(currentPage);
 }
 function deleteVehicle(id){
@@ -693,8 +818,20 @@ function saveReminder(){
   const id=document.getElementById('rf-id').value;
   const exp=document.getElementById('rf-expiry').value;
   if(!exp){showToast('⚠️ Tanggal kadaluarsa wajib diisi!');return;}
-  const data={id:id||uid(),vehicleId:document.getElementById('rf-vehicle').value,doctype:document.getElementById('rf-doctype').value,name:document.getElementById('rf-name').value.trim(),expiry:exp,warnDays:Number(document.getElementById('rf-warn-days').value),number:document.getElementById('rf-number').value.trim(),notes:document.getElementById('rf-notes').value.trim()};
+  const existing=id?DB.reminders.find(r=>r.id===id):null;
+  const data={
+    id:id||uid(),
+    vehicleId:document.getElementById('rf-vehicle').value,
+    doctype:document.getElementById('rf-doctype').value,
+    name:document.getElementById('rf-name').value.trim(),
+    expiry:exp,
+    warnDays:Number(document.getElementById('rf-warn-days').value),
+    number:document.getElementById('rf-number').value.trim(),
+    notes:document.getElementById('rf-notes').value.trim(),
+    fromVehicleTax:existing?.fromVehicleTax
+  };
   if(id){const i=DB.reminders.findIndex(r=>r.id===id);if(i>=0)DB.reminders[i]=data;}else DB.reminders.push(data);
+  if(data.fromVehicleTax) syncReminderToVehicle(data);
   saveDB();closeModal('reminder-form-modal');showToast('✅ Reminder disimpan!');renderPage(currentPage);
 }
 function deleteReminder(id){showConfirm('Hapus Reminder?','Data ini akan hilang permanen.',()=>{DB.reminders=DB.reminders.filter(r=>r.id!==id);saveDB();showToast('🗑️ Reminder dihapus');renderReminders();});}
