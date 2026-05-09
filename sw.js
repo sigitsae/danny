@@ -4,9 +4,9 @@
  * Strategy: Cache-First for assets, Network-First for Firebase/API
  */
 
-const CACHE_NAME = 'dannys-garage-v1';
-const STATIC_CACHE = 'dannys-garage-static-v1';
-const DYNAMIC_CACHE = 'dannys-garage-dynamic-v1';
+const CACHE_NAME = 'dannys-garage-v2';
+const STATIC_CACHE = 'dannys-garage-static-v2';
+const DYNAMIC_CACHE = 'dannys-garage-dynamic-v2';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -104,9 +104,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ── Cache-First: Local static assets (HTML, CSS, JS, images) ──
+  // ── Network-First untuk HTML, Cache-First untuk aset lain ──
   if (url.origin === self.location.origin) {
-    event.respondWith(cacheFirstStrategy(request));
+    if (request.mode === 'navigate' || url.pathname.endsWith('.html')) {
+      event.respondWith(networkFirstStrategy(request));
+    } else {
+      event.respondWith(cacheFirstStrategy(request));
+    }
     return;
   }
 
