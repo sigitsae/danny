@@ -738,20 +738,8 @@ function saveVehicle(){
     photo:document.getElementById('vf-photo').value.trim(),
     taxExpiry:document.getElementById('vf-tax-expiry').value,
     taxWarnDays:Number(document.getElementById('vf-tax-warn-days').value)||30,
-    taxNexisting=id?DB.reminders.find(r=>r.id===id):null;
-  const data={
-    id:id||uid(),
-    vehicleId:document.getElementById('rf-vehicle').value,
-    doctype:document.getElementById('rf-doctype').value,
-    name:document.getElementById('rf-name').value.trim(),
-    expiry:exp,
-    warnDays:Number(document.getElementById('rf-warn-days').value),
-    number:document.getElementById('rf-number').value.trim(),
-    notes:document.getElementById('rf-notes').value.trim(),
-    fromVehicleTax:existing?.fromVehicleTax
-  };
-  if(id){const i=DB.reminders.findIndex(r=>r.id===id);if(i>=0)DB.reminders[i]=data;}else DB.reminders.push(data);
-  if(data.fromVehicleTax) syncReminderToVehicle
+    taxNumber:document.getElementById('vf-tax-number').value.trim(),
+    notes:document.getElementById('vf-notes').value.trim(),
     status:document.getElementById('vf-status').value,
     fav:document.getElementById('vf-fav').value==='true'
   };
